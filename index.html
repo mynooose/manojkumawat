@@ -19,13 +19,70 @@
   ::selection { background: #9C4A1E; color: #FFFFFF; }
   @keyframes flowdot { 0% { transform: translateY(-13px); opacity: 0 } 20% { opacity: 1 } 80% { opacity: 1 } 100% { transform: translateY(13px); opacity: 0 } }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } [data-flowdot] { animation: none !important; opacity: 1 } }
+
+  /* ---------------------------------------------------------------
+     Responsive layer. Desktop (>1080px) is untouched — every rule
+     below is inside a max-width query. !important is required because
+     the layout is authored in inline styles.
+     --------------------------------------------------------------- */
+
+  body { overflow-wrap: break-word; }
+
+  /* Tablet: pull the 52px gutters in. */
+  @media (max-width: 1080px) {
+    .r-wrap { padding-left: 32px !important; padding-right: 32px !important; }
+  }
+
+  /* Portrait tablet: stack the About split (portrait over timeline). */
+  @media (max-width: 900px) {
+    .r-about { grid-template-columns: 1fr !important; }
+  }
+
+  /* Landscape phone: one column everywhere, tighter gutters. */
+  @media (max-width: 700px) {
+    .r-wrap { padding-left: 20px !important; padding-right: 20px !important; }
+    .r-tabs { grid-template-columns: 1fr !important; }
+    .r-tabrail { border-right: none !important; border-bottom: 1px solid #E2D8CE; }
+    .r-viewerbg { padding: 14px !important; }
+    .r-viewer {
+      width: calc(100vw - 20px) !important;
+      height: calc(100vh - 28px) !important;
+      height: calc(100dvh - 28px) !important;
+    }
+  }
+
+  /* Once a row grid collapses to one track, a child asking to span two
+     forces an implicit extra column and pushes past the viewport. */
+  @media (max-width: 700px) {
+    .r-span2 { grid-column: auto !important; }
+  }
+
+  /* Phone: collapse the remaining fixed multi-column blocks. */
+  @media (max-width: 560px) {
+    .r-sch3 { grid-template-columns: 1fr !important; }
+    .r-metrics { grid-template-columns: 1fr !important; }
+    .r-cardhead { flex-wrap: wrap !important; }
+    .r-cardhead span { white-space: normal !important; }
+
+    /* Timeline: narrow the year column, and move the spine with it.
+       Spine offset must stay col1 + gap + half the 28px dot column. */
+    .r-cvrow { grid-template-columns: 64px 28px 1fr !important; }
+    .r-cvspine { left: calc(64px + 16px + 14px) !important; }
+  }
+
+  /* Small phone: last of the gutters. */
+  @media (max-width: 380px) {
+    .r-wrap { padding-left: 15px !important; padding-right: 15px !important; }
+    .r-cvrow { grid-template-columns: 56px 22px 1fr !important; }
+    .r-cvspine { left: calc(56px + 16px + 11px) !important; }
+  }
 </style>
 </helmet>
 
 <div style="background:#F7F5F2;color:#635A52;font-family:'Inter Tight',system-ui,sans-serif;font-size:17px;line-height:1.7;min-height:100vh">
 
   <header style="position:sticky;top:0;z-index:70;background:#F7F5F2;border-bottom:1px solid rgba(138,75,34,0.28)">
-    <nav style="max-width:1240px;margin:0 auto;padding:14px 52px;display:flex;align-items:center;justify-content:space-between;gap:14px 24px;flex-wrap:wrap">
+    <nav class="r-wrap" style="max-width:1240px;margin:0 auto;padding:14px 52px;display:flex;align-items:center;justify-content:space-between;gap:14px 24px;flex-wrap:wrap">
       <a href="#top" style="flex:none;display:flex;align-items:center;gap:12px">
         <span style="font-size:19px;font-weight:600;color:#1A1614;letter-spacing:-0.02em;white-space:nowrap">Manoj Kumawat</span>
       </a>
@@ -34,14 +91,15 @@
         <a href="#approach" style="color:#635A52;padding:8px 14px;border-radius:8px;transition:background .18s ease,color .18s ease" style-hover="background:rgba(138,75,34,0.1);color:#9C4A1E">Approach</a>
         <a href="#about" style="color:#635A52;padding:8px 14px;border-radius:8px;transition:background .18s ease,color .18s ease" style-hover="background:rgba(138,75,34,0.1);color:#9C4A1E">About</a>
         <a href="#contact" style="margin-left:8px;font-size:14.5px;font-weight:500;color:#FFFFFF;background:#9C4A1E;padding:9px 20px;border-radius:8px;transition:background .18s ease" style-hover="background:#1A1614;color:#FFFFFF">Contact</a>
+      </div>
     </nav>
   </header>
 
   <main id="top">
 
     <section style="position:relative;overflow:hidden;background:radial-gradient(900px 520px at 8% -10%, rgba(156,74,30,0.13), transparent 62%), radial-gradient(760px 460px at 88% 6%, rgba(200,150,110,0.16), transparent 64%), linear-gradient(180deg, rgba(120,90,70,0.07), transparent 45%)">
-      <div style="max-width:1240px;margin:0 auto;padding:64px 52px 0">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:40px;align-items:start;padding-bottom:56px">
+      <div class="r-wrap" style="max-width:1240px;margin:0 auto;padding:64px 52px 0">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(400px,100%),1fr));gap:40px;align-items:start;padding-bottom:56px">
         <div style="display:flex;flex-direction:column">
           <p data-reveal="1" style="margin:0 0 22px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.22em;text-transform:uppercase;color:#9C4A1E">Solution architect · Platform engineering</p>
           <h1 data-reveal="1" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(40px,4.6vw,68px);line-height:0.98;letter-spacing:-0.026em;color:#1A1614;margin:0 0 30px;text-wrap:balance;hyphens:none">I design and build multi-tenant AI platforms.</h1>
@@ -53,14 +111,14 @@
         </div>
 
         <div data-reveal="1" style="border:1px solid #E2D8CE;border-radius:12px;background:#FFFFFF;box-shadow:0 12px 30px rgba(60,35,20,0.08);justify-self:stretch;align-self:start;width:100%">
-          <div style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid #1A1614;background:#FBF9F6">
+          <div class="r-cardhead" style="display:flex;justify-content:space-between;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid #1A1614;background:#FBF9F6">
             <span style="font-size:14px;font-weight:500;color:#1A1614;letter-spacing:-0.01em;white-space:nowrap">From signup to serving · one tenant’s journey</span>
             <span style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#9C4A1E;white-space:nowrap">
               <span aria-hidden="true" style="width:6px;height:6px;border-radius:50%;background:#9C4A1E"></span>{{ phase }}
             </span>
           </div>
 
-          <div style="padding:18px;display:grid;grid-template-columns:0.85fr 1.7fr 0.85fr;gap:10px;align-items:start">
+          <div class="r-sch3" style="padding:18px;display:grid;grid-template-columns:0.85fr 1.7fr 0.85fr;gap:10px;align-items:start">
             <div>
               <p style="margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#9C4A1E">Build</p>
               <div style="display:flex;flex-direction:column;gap:6px">
@@ -130,7 +188,7 @@
     </section>
 
     <section style="background:radial-gradient(820px 460px at 12% 0%, rgba(224,169,126,0.16), transparent 60%), radial-gradient(700px 420px at 92% 100%, rgba(156,74,30,0.22), transparent 62%), #1A1614;color:#C8BCB0">
-      <dl style="max-width:1240px;margin:0 auto;padding:48px 52px;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:32px">
+      <dl class="r-wrap" style="max-width:1240px;margin:0 auto;padding:48px 52px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(190px,100%),1fr));gap:32px">
         <div>
           <dt style="margin:0;font-family:'Instrument Serif',Georgia,serif;font-size:clamp(38px,4vw,50px);line-height:1;color:#FBF8F4">12</dt>
           <dd style="margin:14px 0 0;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:#C8BCB0;line-height:1.7">Engineers led across<br />backend and frontend</dd>
@@ -150,14 +208,14 @@
       </dl>
     </section>
 
-    <section id="work" style="max-width:1240px;margin:0 auto;padding:64px 52px 0">
+    <section class="r-wrap" id="work" style="max-width:1240px;margin:0 auto;padding:64px 52px 0">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:32px;flex-wrap:wrap;border-bottom:1px solid #1A1614;padding-bottom:20px;margin-bottom:0">
         <h2 data-reveal="1" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(32px,3.8vw,46px);line-height:1;color:#1A1614;margin:0"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#9C4A1E;vertical-align:middle;margin-right:16px">01</span>Selected work</h2>
         <p data-reveal="1" style="margin:0;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#9C4A1E">{{ counter }} · client names withheld</p>
       </div>
 
-      <div data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:0">
-        <div style="border-right:1px solid #E2D8CE">
+      <div class="r-tabs" data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(290px,100%),1fr));gap:0">
+        <div class="r-tabrail" style="border-right:1px solid #E2D8CE">
           <p style="margin:0;padding:16px 26px 14px;border-bottom:1px solid #E2D8CE;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:#9C4A1E">Select a project · 5</p>
           <sc-if value="{{ sel0 }}" hint-placeholder-val="{{ true }}">
             <div role="button" tabindex="0" onKeyDown="{{ onKey }}" style-focus="outline:2px solid #1A1614;outline-offset:3px" onClick="{{ p0 }}" style="background:#1A1614;color:#FBF8F4;padding:22px 26px 24px;cursor:pointer;border-bottom:1px solid #1A1614">
@@ -221,12 +279,12 @@
           </sc-if>
         </div>
 
-        <div style="grid-column:span 2;min-width:0;padding:34px 0 40px 46px">
+        <div class="r-span2" style="grid-column:span 2;min-width:0;padding:34px 0 40px 46px">
           <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(28px,3vw,38px);line-height:1.08;letter-spacing:-0.015em;color:#1A1614;margin:0 0 10px">{{ title }}</h3>
           <p style="margin:0 0 30px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#9C4A1E">{{ role }}</p>
 
           <div style="display:flex;flex-direction:column;gap:32px">
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:26px 46px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:26px 46px">
               <p style="margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#9C4A1E">The problem</p>
               <p style="margin:0 0 8px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:#9C4A1E">What I built</p>
               <p style="margin:0;font-size:16px;line-height:1.7;color:#544C46;text-wrap:pretty;grid-column:1;grid-row:2">{{ problem }}</p>
@@ -269,7 +327,7 @@
     </section>
 
     <section style="margin:76px 0 0;background:#1A1614;color:#C8BCB0">
-      <div style="max-width:1240px;margin:0 auto;padding:56px 52px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:44px;align-items:center">
+      <div class="r-wrap" style="max-width:1240px;margin:0 auto;padding:56px 52px 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:44px;align-items:center">
         <div>
           <p style="margin:0 0 20px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;color:#C8BCB0">A platform in operation</p>
           <p style="margin:0 0 26px;font-family:'Instrument Serif',Georgia,serif;font-size:clamp(26px,3vw,38px);line-height:1.15;color:#FBF8F4;max-width:460px;text-wrap:pretty">Fifty-plus organisations, one platform, no shared state.</p>
@@ -297,7 +355,7 @@
                     <span style="flex:1;height:{{ bar.h }}%;background:{{ bar.c }};transition:height .8s cubic-bezier(.4,0,.2,1),background .8s ease"></span>
                   </sc-for>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #2A2320">
+                <div class="r-metrics" style="display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #2A2320">
                   <div style="padding:18px 0 0;border-right:1px solid #2A2320">
                     <p style="margin:0;font-family:'Instrument Serif',Georgia,serif;font-size:28px;line-height:1;color:#FBF8F4;font-variant-numeric:tabular-nums">52</p>
                     <p style="margin:8px 0 0;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.12em;text-transform:uppercase;color:#C8BCB0">Tenants</p>
@@ -348,7 +406,7 @@
       </div>
     </section>
 
-    <section id="approach" style="max-width:1240px;margin:0 auto;padding:84px 52px 84px">
+    <section class="r-wrap" id="approach" style="max-width:1240px;margin:0 auto;padding:84px 52px 84px">
       <div style="max-width:760px;margin-bottom:44px">
         <p data-reveal="1" style="margin:0 0 22px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;color:#9C4A1E"><span style="margin-right:12px">02</span>How I work</p>
         <h2 data-reveal="1" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(32px,4vw,50px);line-height:1.05;letter-spacing:-0.02em;color:#1A1614;margin:0 0 22px">How an engagement runs</h2>
@@ -359,7 +417,7 @@
         <span aria-hidden="true" style="position:absolute;left:0;top:0;width:1px;height:{{ spineTrack }};background:#E2D8CE"></span>
         <span aria-hidden="true" style="position:absolute;left:0;top:0;width:1px;height:{{ spineFill }};background:#1A1614;transition:height .5s cubic-bezier(.4,0,.2,1)"></span>
         <ol style="list-style:none;margin:0;padding:0;position:relative">
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl0 }};background:{{ rbg0 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl0 }};background:{{ rbg0 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc0 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl0 }};background:{{ badge0 }};color:{{ badgeC0 }};transition:background .45s ease,color .45s ease,border-color .45s ease">01</span>
@@ -367,12 +425,12 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Assessment</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 16px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">Designs and requirements read in full. Scope, effort and risk fixed before anything is quoted.</p>
               <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:#9C4A1E">Scope matrix / effort model / risk register / assumption log</p>
             </div>
           </li>
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl1 }};background:{{ rbg1 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl1 }};background:{{ rbg1 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc1 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl1 }};background:{{ badge1 }};color:{{ badgeC1 }};transition:background .45s ease,color .45s ease,border-color .45s ease">02</span>
@@ -380,12 +438,12 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Discovery and architecture</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 16px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">The system defined end to end: data, service boundaries, tenancy, failure modes, performance targets.</p>
               <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:#9C4A1E">Architecture diagrams / data model / API contracts / auth &amp; tenancy / NFR targets</p>
             </div>
           </li>
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl2 }};background:{{ rbg2 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl2 }};background:{{ rbg2 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc2 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl2 }};background:{{ badge2 }};color:{{ badgeC2 }};transition:background .45s ease,color .45s ease,border-color .45s ease">03</span>
@@ -393,12 +451,12 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Setup and foundation</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 16px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">Environments as code, pipelines and observability first — then the foundation every feature leans on.</p>
               <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:#9C4A1E">IaC environments / CI-CD / secrets / observability / RBAC / billing / notifications</p>
             </div>
           </li>
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl3 }};background:{{ rbg3 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl3 }};background:{{ rbg3 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc3 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl3 }};background:{{ badge3 }};color:{{ badgeC3 }};transition:background .45s ease,color .45s ease,border-color .45s ease">04</span>
@@ -406,7 +464,7 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Phased build</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 18px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">Capability phases in agreed order. Each one closes with a reviewed, tested, deployed release.</p>
               <sc-if value="{{ showSubDiagram }}" hint-placeholder-val="{{ true }}">
                 <div style="border:1px solid #E2D8CE;padding:18px 20px;max-width:620px">
@@ -424,7 +482,7 @@
               </sc-if>
             </div>
           </li>
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl4 }};background:{{ rbg4 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 26px 34px;margin-left:-1px;border-bottom:1px solid #E2D8CE;border-left:3px solid {{ rl4 }};background:{{ rbg4 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc4 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl4 }};background:{{ badge4 }};color:{{ badgeC4 }};transition:background .45s ease,color .45s ease,border-color .45s ease">05</span>
@@ -432,12 +490,12 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Launch</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 16px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">UAT, independent penetration test, load test to target, cutover with a rollback path, full handover.</p>
               <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:#9C4A1E">UAT sign-off / VAPT report / load-test results / runbooks / credentials</p>
             </div>
           </li>
-          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px 46px;padding:26px 20px 30px 34px;margin-left:-1px;border-bottom:1px solid #1A1614;border-left:3px solid {{ rl5 }};background:{{ rbg5 }};transition:background .45s ease,border-color .45s ease">
+          <li data-reveal="1" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:14px 46px;padding:26px 20px 30px 34px;margin-left:-1px;border-bottom:1px solid #1A1614;border-left:3px solid {{ rl5 }};background:{{ rbg5 }};transition:background .45s ease,border-color .45s ease">
             <div>
               <p data-last-marker="1" style="margin:0 0 10px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.16em;color:{{ mc5 }}">
                 <span style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;border:1px solid {{ rl5 }};background:{{ badge5 }};color:{{ badgeC5 }};transition:background .45s ease,color .45s ease,border-color .45s ease">06</span>
@@ -445,7 +503,7 @@
               </p>
               <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:27px;line-height:1.15;color:#1A1614;margin:0">Operate and evolve</h3>
             </div>
-            <div style="grid-column:span 2;min-width:0">
+            <div class="r-span2" style="grid-column:span 2;min-width:0">
               <p style="margin:0 0 16px;font-size:16.5px;line-height:1.65;color:#544C46;max-width:620px;text-wrap:pretty">SLO monitoring, defined escalation, patch cadence, cost review — and the next phases when you need them.</p>
               <p style="margin:0;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.9;color:#9C4A1E">SLO dashboards / alerting &amp; escalation / patch cadence / cost reviews</p>
             </div>
@@ -456,7 +514,7 @@
     </section>
 
     <section id="about" style="background:linear-gradient(170deg, #EFE9E3, rgba(156,74,30,0.10) 55%, #EFE9E3), radial-gradient(760px 420px at 88% 0%, rgba(200,150,110,0.13), transparent 62%);background-color:#EFE9E3;border-top:1px solid #1A1614;border-bottom:1px solid #1A1614">
-      <div style="max-width:1240px;margin:0 auto;padding:72px 52px 78px;display:grid;grid-template-columns:minmax(260px,0.72fr) minmax(320px,1.28fr);gap:44px 56px;align-items:start">
+      <div class="r-wrap r-about" style="max-width:1240px;margin:0 auto;padding:72px 52px 78px;display:grid;grid-template-columns:minmax(260px,0.72fr) minmax(320px,1.28fr);gap:44px 56px;align-items:start">
         <div data-reveal="1">
           <div style="position:relative;border:1px solid #1A1614;overflow:hidden;background:#EFE9E3">
             <img src="portrait-manoj.png" alt="Manoj Kumawat" style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover;object-position:50% 12%" />
@@ -472,9 +530,9 @@
           <p data-reveal="1" style="margin:0 0 34px;font-size:18px;line-height:1.6;color:#3A322C;max-width:640px;text-wrap:pretty">Nine years moving in one direction — from systems and security engineering into platform architecture and AI.</p>
 
           <div data-cvspine="1" data-reveal="1" style="position:relative;display:grid;gap:0;border-top:1px solid #1A1614;max-width:660px">
-            <span aria-hidden="true" style="position:absolute;left:calc(96px + 16px + 14px);top:0;width:1px;height:{{ cvTrack }};background:#DCD0C5"></span>
-            <span aria-hidden="true" style="position:absolute;left:calc(96px + 16px + 14px);top:0;width:1px;height:{{ cvFill }};background:#9C4A1E;transition:height .6s cubic-bezier(.4,0,.2,1)"></span>
-            <div style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg0 }};transition:background .5s ease">
+            <span class="r-cvspine" aria-hidden="true" style="position:absolute;left:calc(96px + 16px + 14px);top:0;width:1px;height:{{ cvTrack }};background:#DCD0C5"></span>
+            <span class="r-cvspine" aria-hidden="true" style="position:absolute;left:calc(96px + 16px + 14px);top:0;width:1px;height:{{ cvFill }};background:#9C4A1E;transition:height .6s cubic-bezier(.4,0,.2,1)"></span>
+            <div class="r-cvrow" style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg0 }};transition:background .5s ease">
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:{{ cvy0 }};padding-top:6px;transition:color .5s ease">2013—17</span>
               <span aria-hidden="true" style="display:flex;justify-content:center;padding-top:8px">
                 <span style="width:11px;height:11px;border-radius:50%;border:1px solid {{ cvring0 }};background:{{ cvdot0 }};box-shadow:{{ cvglow0 }};transition:background .5s ease,border-color .5s ease,box-shadow .5s ease"></span>
@@ -484,7 +542,7 @@
                 <span style="display:block;margin-top:4px;font-size:14.5px;line-height:1.6;color:#635A52">Fundamentals first — systems, networks, security.</span>
               </span>
             </div>
-            <div style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg1 }};transition:background .5s ease">
+            <div class="r-cvrow" style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg1 }};transition:background .5s ease">
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:{{ cvy1 }};padding-top:6px;transition:color .5s ease">2017—22</span>
               <span aria-hidden="true" style="display:flex;justify-content:center;padding-top:8px">
                 <span style="width:11px;height:11px;border-radius:50%;border:1px solid {{ cvring1 }};background:{{ cvdot1 }};box-shadow:{{ cvglow1 }};transition:background .5s ease,border-color .5s ease,box-shadow .5s ease"></span>
@@ -494,7 +552,7 @@
                 <span style="display:block;margin-top:4px;font-size:14.5px;line-height:1.6;color:#635A52">Software Engineer, then Lead Engineer from 2020 — where the standard for production software was set early.</span>
               </span>
             </div>
-            <div style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg2 }};transition:background .5s ease">
+            <div class="r-cvrow" style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg2 }};transition:background .5s ease">
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:{{ cvy2 }};padding-top:6px;transition:color .5s ease">2022</span>
               <span aria-hidden="true" style="display:flex;justify-content:center;padding-top:8px">
                 <span style="width:11px;height:11px;border-radius:50%;border:1px solid {{ cvring2 }};background:{{ cvdot2 }};box-shadow:{{ cvglow2 }};transition:background .5s ease,border-color .5s ease,box-shadow .5s ease"></span>
@@ -504,7 +562,7 @@
                 <span style="display:block;margin-top:4px;font-size:14.5px;line-height:1.6;color:#635A52">Multithreaded systems work on EDA tooling.</span>
               </span>
             </div>
-            <div style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg3 }};transition:background .5s ease">
+            <div class="r-cvrow" style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid rgba(26,22,20,0.18);background:{{ cvbg3 }};transition:background .5s ease">
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:{{ cvy3 }};padding-top:6px;transition:color .5s ease">2022—24</span>
               <span aria-hidden="true" style="display:flex;justify-content:center;padding-top:8px">
                 <span style="width:11px;height:11px;border-radius:50%;border:1px solid {{ cvring3 }};background:{{ cvdot3 }};box-shadow:{{ cvglow3 }};transition:background .5s ease,border-color .5s ease,box-shadow .5s ease"></span>
@@ -514,7 +572,7 @@
                 <span style="display:block;margin-top:4px;font-size:14.5px;line-height:1.6;color:#635A52">Built and ran the platform end to end on AWS and MongoDB.</span>
               </span>
             </div>
-            <div style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid #1A1614;background:{{ cvbg4 }};transition:background .5s ease">
+            <div class="r-cvrow" style="display:grid;grid-template-columns:96px 28px 1fr;gap:0 16px;padding:16px 0;border-bottom:1px solid #1A1614;background:{{ cvbg4 }};transition:background .5s ease">
               <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.12em;color:{{ cvy4 }};padding-top:6px;transition:color .5s ease">2024—now</span>
               <span aria-hidden="true" style="display:flex;justify-content:center;padding-top:8px">
                 <span data-cv-last="1" style="width:11px;height:11px;border-radius:50%;border:1px solid {{ cvring4 }};background:{{ cvdot4 }};box-shadow:{{ cvglow4 }};transition:background .5s ease,border-color .5s ease,box-shadow .5s ease"></span>
@@ -531,13 +589,13 @@
       </div>
     </section>
 
-    <section style="max-width:1240px;margin:0 auto;padding:84px 52px 84px">
+    <section class="r-wrap" style="max-width:1240px;margin:0 auto;padding:84px 52px 84px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;gap:32px;flex-wrap:wrap;border-bottom:1px solid #1A1614;padding-bottom:20px">
         <h2 data-reveal="1" style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(32px,3.8vw,46px);line-height:1;color:#1A1614;margin:0"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;color:#9C4A1E;vertical-align:middle;margin-right:16px">04</span>What I work with</h2>
         <p data-reveal="1" style="margin:0;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#9C4A1E">Six domains · all in production</p>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px;margin-top:28px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr));gap:16px;margin-top:28px">
         <div data-reveal="1" style="display:flex;flex-direction:column;gap:14px;border:1px solid #E2D8CE;border-radius:14px;background:#FFFFFF;padding:24px 24px 26px;transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease" style-hover="transform:translateY(-3px);box-shadow:0 16px 34px rgba(60,35,20,0.10);border-color:#9C4A1E">
           <div style="display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid #EFE9E3;padding-bottom:12px">
             <h3 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:26px;line-height:1.15;color:#1A1614;margin:0">Architecture and platform</h3>
@@ -584,10 +642,10 @@
     </section>
 
     <section id="contact" style="margin:76px 0 0;background:radial-gradient(820px 460px at 12% 0%, rgba(224,169,126,0.16), transparent 60%), radial-gradient(700px 420px at 92% 100%, rgba(156,74,30,0.22), transparent 62%), #1A1614;color:#C8BCB0">
-      <div style="max-width:1240px;margin:0 auto;padding:76px 52px 80px">
+      <div class="r-wrap" style="max-width:1240px;margin:0 auto;padding:76px 52px 80px">
         <p style="margin:0 0 24px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;color:#E0A97E">Contact</p>
         <h2 style="font-family:'Instrument Serif',Georgia,serif;font-weight:400;font-size:clamp(38px,6vw,74px);line-height:1;letter-spacing:-0.02em;color:#FBF8F4;margin:0 0 36px;max-width:900px">Let's talk about what you are building.</h2>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:44px;align-items:start">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:44px;align-items:start">
           <div>
             <p style="margin:0 0 18px;max-width:520px;color:#C8BCB0;text-wrap:pretty">If you are building a platform, I can take it from architecture to production — or step in wherever it currently stands. Either way it starts with understanding the system properly before anything gets committed to.</p>
             <p style="margin:0;max-width:520px;color:#C8BCB0;text-wrap:pretty">A first call is usually thirty minutes: what you are building, where the hard parts are, and whether I am the right person for it.</p>
@@ -607,8 +665,8 @@
     </section>
 
     <sc-if value="{{ plateOpen }}" hint-placeholder-val="{{ false }}">
-      <div role="button" tabindex="-1" onClick="{{ closePlate }}" style="position:fixed;inset:0;z-index:200;background:rgba(17,17,17,0.55);display:flex;align-items:center;justify-content:center;padding:40px 32px"></div>
-      <div style="position:fixed;z-index:201;top:50%;left:50%;transform:translate(-50%,-50%);width:min(1120px,calc(100vw - 72px));height:min(760px,calc(100vh - 96px));background:#1A1614;border:1px solid #1A1614;box-shadow:0 30px 80px rgba(17,17,17,0.4);display:flex;flex-direction:column">
+      <div class="r-viewerbg" role="button" tabindex="-1" onClick="{{ closePlate }}" style="position:fixed;inset:0;z-index:200;background:rgba(17,17,17,0.55);display:flex;align-items:center;justify-content:center;padding:40px 32px"></div>
+      <div class="r-viewer" style="position:fixed;z-index:201;top:50%;left:50%;transform:translate(-50%,-50%);width:min(1120px,calc(100vw - 72px));height:min(760px,calc(100vh - 96px));background:#1A1614;border:1px solid #1A1614;box-shadow:0 30px 80px rgba(17,17,17,0.4);display:flex;flex-direction:column">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:13px 18px;border-bottom:1px solid #2A2320;flex-wrap:wrap">
           <span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.16em;text-transform:uppercase;color:#C8BCB0">Multi-tenant chatbot SaaS · production architecture</span>
           <div style="display:flex;align-items:center;gap:8px">
@@ -629,7 +687,7 @@
   </main>
 
   <footer style="background:#1A1614;border-top:1px solid #2A2320">
-    <div style="max-width:1240px;margin:0 auto;padding:26px 52px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:baseline;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#C8BCB0">
+    <div class="r-wrap" style="max-width:1240px;margin:0 auto;padding:26px 52px;display:flex;flex-wrap:wrap;gap:12px 32px;align-items:baseline;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:#C8BCB0">
       <span style="color:#C8BCB0">Manoj Kumawat</span>
       <span>Architecture first. Then everything else.</span>
       <span>© 2026</span>
