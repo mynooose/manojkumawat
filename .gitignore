@@ -6,3 +6,5 @@ node_modules/
 *token*.txt
 *.env
 .vercel/
+
+.vercel
