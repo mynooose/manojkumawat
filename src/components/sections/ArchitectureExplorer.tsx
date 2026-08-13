@@ -92,8 +92,8 @@ export function ArchitectureExplorer() {
   const stateOf = (k: string): NodeState =>
     k === selected ? 'current' : trailing.has(k) ? 'trace' : 'idle';
 
-  const node = (n: ArchitectureNode, tone: Tone = 'dark') => (
-    <Node key={n.k} node={n} state={stateOf(n.k)} tone={tone} onSelect={pick} />
+  const node = (n: ArchitectureNode) => (
+    <Node key={n.k} node={n} state={stateOf(n.k)} onSelect={pick} />
   );
 
   return (
@@ -151,24 +151,24 @@ export function ArchitectureExplorer() {
                 <FlowV active={touring} short />
 
                 {/* Dashed boundary: the isolation line the whole design turns on. */}
-                {/* The isolated stack is the thesis of the whole design, so it
-                    is the one region on light ground — the same treatment the
-                    skill cards use when they come forward. */}
-                <div className="rounded-inner border-2 border-dashed border-[rgba(12,12,13,0.22)] bg-text p-[10px]">
-                  <p className="m-0 mb-2 font-mono text-[9px] tracking-[0.16em] text-[#4A463E] uppercase">
+                {/* The isolated stack is the thesis of the design, so it gets
+                    the brightest boundary in the section — a pale dashed rule
+                    rather than a filled panel, which would fight the page. */}
+                <div className="rounded-inner border-2 border-dashed border-[rgba(242,242,240,0.34)] bg-surface-2 p-[10px]">
+                  <p className="m-0 mb-2 font-mono text-[9px] tracking-[0.16em] text-text-3 uppercase">
                     Tenant boundary · fully isolated stack per client
                   </p>
 
                   <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
-                    {byZone.app.map((n) => node(n, 'light'))}
+                    {byZone.app.map((n) => node(n))}
                   </div>
 
-                  <FlowV active={touring} short tone="light" />
+                  <FlowV active={touring} short />
                   <QueryPath lit={selected === 'rag'} />
-                  <FlowV active={touring} short tone="light" />
+                  <FlowV active={touring} short />
 
                   <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
-                    {byZone.data.map((n) => node(n, 'light'))}
+                    {byZone.data.map((n) => node(n))}
                   </div>
                 </div>
               </div>
@@ -185,32 +185,35 @@ export function ArchitectureExplorer() {
         </Reveal>
 
         <Reveal className="min-w-0" delay={120}>
+          {/* The description card carries the light treatment: it is the one
+              thing being read, and lifting it off the dark diagram is what the
+              contrast is for. */}
           <div
             id="architecture-detail"
-            className="surface-depth static scroll-mt-[96px] rounded-container border border-line bg-surface p-[clamp(18px,2.2vw,26px)] min-[1000px]:sticky min-[1000px]:top-[104px]"
+            className="surface-depth static scroll-mt-[96px] rounded-container border border-[rgba(242,242,240,0.16)] bg-text p-[clamp(18px,2.2vw,26px)] min-[1000px]:sticky min-[1000px]:top-[104px]"
           >
             <div className="mb-4 flex items-center justify-between gap-3">
               <p className="m-0 font-mono text-[10px] tracking-[0.16em] text-accent uppercase">
                 {active.zone}
               </p>
               {touring ? (
-                <span className="flex flex-none items-center gap-[6px] font-mono text-[9px] tracking-[0.14em] text-text-4 uppercase">
+                <span className="flex flex-none items-center gap-[6px] font-mono text-[9px] tracking-[0.14em] text-[#6B675E] uppercase">
                   <span className="h-[5px] w-[5px] rounded-full bg-accent" />
                   {String(step + 1).padStart(2, '0')} / {ARCHITECTURE_TOUR.length}
                 </span>
               ) : null}
             </div>
 
-            <h3 className="m-0 mb-1 text-[22px] leading-[1.2] font-semibold">{active.n}</h3>
-            <p className="m-0 mb-5 font-mono text-[11.5px] text-text-4">{active.sub}</p>
+            <h3 className="m-0 mb-1 text-[22px] leading-[1.2] font-semibold text-bg">{active.n}</h3>
+            <p className="m-0 mb-5 font-mono text-[11.5px] text-[#6B675E]">{active.sub}</p>
 
             <dl className="m-0 flex flex-col gap-4">
               {active.meta.map(([label, value]) => (
                 <div key={label}>
-                  <dt className="m-0 mb-1 font-mono text-[9.5px] tracking-[0.16em] text-text-4 uppercase">
+                  <dt className="m-0 mb-1 font-mono text-[9.5px] tracking-[0.16em] text-[#6B675E] uppercase">
                     {label}
                   </dt>
-                  <dd className="m-0 text-[14px] leading-[1.6] text-text-2 text-pretty">{value}</dd>
+                  <dd className="m-0 text-[14px] leading-[1.6] text-[#3A362F] text-pretty">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -237,21 +240,11 @@ function Region({ label, children }: { label: string; children: React.ReactNode 
  * Vertical connector between two regions, with a pulse travelling down it
  * while the tour is running. The rail stays put; only the highlight moves.
  */
-function FlowV({
-  active,
-  short = false,
-  tone = 'dark',
-}: {
-  active: boolean;
-  short?: boolean;
-  tone?: Tone;
-}) {
+function FlowV({ active, short = false }: { active: boolean; short?: boolean }) {
   return (
     <div aria-hidden="true" className={`flex justify-center ${short ? 'py-[7px]' : 'py-3'}`}>
       <span
-        className={`flow-v rounded-full ${short ? 'h-5' : 'h-8'} w-[3px] ${
-          tone === 'light' ? 'flow-on-light' : ''
-        } ${active ? '' : 'flow-off'}`}
+        className={`flow-v rounded-full ${short ? 'h-5' : 'h-8'} w-[3px] ${active ? '' : 'flow-off'}`}
       />
     </div>
   );
@@ -269,32 +262,21 @@ function FlowH({ active }: { active: boolean }) {
 
 /** current = where the tour is; trace = the two stops behind it. */
 type NodeState = 'current' | 'trace' | 'idle';
-type Tone = 'dark' | 'light';
 
-const NODE_STYLE: Record<Tone, Record<NodeState, string>> = {
-  dark: {
-    current:
-      'border-accent bg-[rgba(255,92,43,0.12)] text-text shadow-[0_0_0_1px_rgba(255,92,43,0.35),0_8px_26px_rgba(255,92,43,0.12)]',
-    trace: 'border-accent/45 bg-[rgba(255,92,43,0.05)] text-text',
-    idle: 'border-line-2 bg-surface text-text-2 hover:border-line-hover',
-  },
-  light: {
-    current:
-      'border-accent bg-[rgba(255,92,43,0.16)] text-bg shadow-[0_0_0_1px_rgba(255,92,43,0.45),0_8px_26px_rgba(255,92,43,0.18)]',
-    trace: 'border-accent/50 bg-[rgba(255,92,43,0.07)] text-bg',
-    idle: 'border-[rgba(12,12,13,0.14)] bg-[rgba(255,255,255,0.72)] text-bg hover:border-[rgba(12,12,13,0.3)]',
-  },
+const NODE_STYLE: Record<NodeState, string> = {
+  current:
+    'border-accent bg-[rgba(255,92,43,0.12)] text-text shadow-[0_0_0_1px_rgba(255,92,43,0.35),0_8px_26px_rgba(255,92,43,0.12)]',
+  trace: 'border-accent/45 bg-[rgba(255,92,43,0.05)] text-text',
+  idle: 'border-line-2 bg-surface text-text-2 hover:border-line-hover',
 };
 
 function Node({
   node,
   state,
-  tone,
   onSelect,
 }: {
   node: ArchitectureNode;
   state: NodeState;
-  tone: Tone;
   onSelect: (k: string) => void;
 }) {
   return (
@@ -302,18 +284,12 @@ function Node({
       type="button"
       aria-pressed={state === 'current'}
       onClick={() => onSelect(node.k)}
-      className={`min-w-0 rounded-node border p-[10px] text-left transition duration-300 hover:-translate-y-[2px] ${NODE_STYLE[tone][state]}`}
+      className={`min-w-0 rounded-node border p-[10px] text-left transition duration-300 hover:-translate-y-[2px] ${NODE_STYLE[state]}`}
     >
       {/* The name wraps: these are real component names and clipping them
           ("Client and plan re…") costs more than a second line. */}
       <span className="block text-[13px] leading-[1.25] font-medium text-balance">{node.n}</span>
-      <span
-        className={`mt-[3px] block truncate font-mono text-[9.5px] ${
-          tone === 'light' ? 'text-[#4A463E]' : 'text-text-4'
-        }`}
-      >
-        {node.sub}
-      </span>
+      <span className="mt-[3px] block truncate font-mono text-[9.5px] text-text-4">{node.sub}</span>
     </button>
   );
 }
@@ -324,22 +300,20 @@ function QueryPath({ lit }: { lit: boolean }) {
     <div
       aria-hidden="true"
       className={`flex flex-wrap items-center gap-x-2 gap-y-1 rounded-inner border px-[10px] py-2 transition-colors duration-300 ${
-        lit
-          ? 'border-accent bg-[rgba(255,92,43,0.10)]'
-          : 'border-[rgba(12,12,13,0.14)] bg-[rgba(255,255,255,0.6)]'
+        lit ? 'border-accent bg-[rgba(255,92,43,0.10)]' : 'border-line-2 bg-surface'
       }`}
     >
       {QUERY_PATH.map((stepLabel, i) => (
         <span key={stepLabel} className="flex items-center gap-2">
           <span
             className={`font-mono text-[9px] tracking-[0.12em] uppercase transition-colors duration-300 ${
-              lit ? 'text-accent' : 'text-[#4A463E]'
+              lit ? 'text-accent' : 'text-text-4'
             }`}
           >
             {stepLabel}
           </span>
           {i < QUERY_PATH.length - 1 ? (
-            <span className={lit ? 'text-accent' : 'text-[rgba(12,12,13,0.32)]'}>→</span>
+            <span className={lit ? 'text-accent' : 'text-line-hover'}>→</span>
           ) : null}
         </span>
       ))}
