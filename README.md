@@ -39,12 +39,16 @@ src/
   hooks/          useInterval, useInView, useScrollFill, usePrefersReducedMotion
   lib/            content.json + its types, and the console's metric maths
 public/           portrait, architecture diagram, icons
-reference/        DESIGN-SPEC.md — the design contract
+docs/            DESIGN-SPEC.md — the design contract
 ```
+
+See also [PROJECT_CONTEXT.md](./PROJECT_CONTEXT.md) for background and
+decisions, and [ARCHITECTURE.md](./ARCHITECTURE.md) for how the code fits
+together.
 
 ## Design tokens
 
-Tailwind v4 is CSS-first, so the tokens from `reference/DESIGN-SPEC.md` are
+Tailwind v4 is CSS-first, so the tokens from `docs/DESIGN-SPEC.md` are
 mapped in the `@theme` block at the top of `src/app/globals.css` rather than a
 `tailwind.config.ts`. That block generates the utilities used throughout
 (`bg-surface`, `text-text-2`, `border-line`, `rounded-pill`, …).
