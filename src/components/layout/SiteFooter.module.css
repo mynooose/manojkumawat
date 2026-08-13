@@ -1,0 +1,19 @@
+.footer {
+  background: var(--c-ink);
+  border-top: 1px solid var(--c-dark-line);
+}
+
+.inner {
+  padding-top: 26px;
+  padding-bottom: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-on-dark-2);
+}
