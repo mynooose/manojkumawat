@@ -279,6 +279,11 @@
     animation: flowRight 1.9s linear infinite;
   }
 
+  /* On the light tenant surface the rail needs a dark base to be visible. */
+  .flow-on-light {
+    background: rgba(12, 12, 13, 0.16);
+  }
+
   /* Paused rails keep the rail, drop the pulse. */
   .flow-off::after {
     display: none;
