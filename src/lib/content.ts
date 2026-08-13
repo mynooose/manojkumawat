@@ -49,10 +49,19 @@ export interface Project {
 /** `[label, value]` pairs shown in the architecture detail panel. */
 export type NodeMeta = readonly (readonly [string, string])[];
 
+/** Columns of the diagram, matching the shipped SVG. */
+export type ArchitectureZone =
+  | 'client'
+  | 'edge'
+  | 'control'
+  | 'app'
+  | 'data'
+  | 'plat'
+  | 'build';
+
 export interface ArchitectureNode {
   readonly k: string;
-  /** Which column the node sits in. */
-  readonly z: 'edge' | 'app' | 'data' | 'plat';
+  readonly z: ArchitectureZone;
   readonly n: string;
   readonly sub: string;
   readonly zone: string;
@@ -121,6 +130,8 @@ interface Content {
   readonly footer: readonly string[];
   readonly projects: readonly Project[];
   readonly architectureNodes: readonly ArchitectureNode[];
+  /** Node keys the ambient tour walks, in request order. */
+  readonly architectureTour: readonly string[];
   readonly processStages: readonly ProcessStage[];
   readonly career: readonly CareerEntry[];
   readonly skills: readonly SkillDomain[];
@@ -139,6 +150,7 @@ export const CONTACT = content.contact;
 export const FOOTER = content.footer;
 export const PROJECTS = content.projects;
 export const ARCHITECTURE_NODES = content.architectureNodes;
+export const ARCHITECTURE_TOUR = content.architectureTour;
 export const PROCESS_STAGES = content.processStages;
 export const CAREER = content.career;
 export const SKILLS = content.skills;

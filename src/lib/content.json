@@ -225,19 +225,119 @@
   ],
   "architectureNodes": [
     {
-      "k": "ingress",
-      "z": "edge",
-      "n": "Nginx ingress",
-      "sub": "TLS · routing",
-      "zone": "Edge · shared",
+      "k": "dashboard",
+      "z": "client",
+      "n": "Tenant web dashboard",
+      "sub": "Bot training, content, analytics",
+      "zone": "Client surface",
       "meta": [
         [
           "tenancy",
-          "Shared across all tenants"
+          "One deployment per tenant, reached on their own subdomain."
         ],
         [
           "data",
-          "None — stateless"
+          "Bot configuration, uploaded content and usage analytics."
+        ],
+        [
+          "failure mode",
+          "Static bundle on the CDN. A backend outage degrades it to read-only rather than taking it down."
+        ],
+        [
+          "scaling",
+          "Served from cache; load follows editor activity, not end-user traffic."
+        ]
+      ]
+    },
+    {
+      "k": "widget",
+      "z": "client",
+      "n": "Embedded chat widget",
+      "sub": "Served on client websites",
+      "zone": "Client surface",
+      "meta": [
+        [
+          "tenancy",
+          "One script tag per tenant, keyed to their namespace."
+        ],
+        [
+          "data",
+          "Carries no secrets — the tenant key resolves server-side."
+        ],
+        [
+          "failure mode",
+          "Fails closed and hides itself, so a broken widget never breaks the host page."
+        ],
+        [
+          "scaling",
+          "Cached at the edge. The heaviest traffic on the platform and the cheapest to serve."
+        ]
+      ]
+    },
+    {
+      "k": "restapi",
+      "z": "client",
+      "n": "REST API",
+      "sub": "Programmatic tenant access",
+      "zone": "Client surface",
+      "meta": [
+        [
+          "tenancy",
+          "Same namespace as the tenant, authenticated per key."
+        ],
+        [
+          "data",
+          "Full read and write access to that tenant, and nothing outside it."
+        ],
+        [
+          "failure mode",
+          "Rate limited at the ingress before it reaches a namespace."
+        ],
+        [
+          "scaling",
+          "Shares the backend deployment and its autoscaler."
+        ]
+      ]
+    },
+    {
+      "k": "dns",
+      "z": "edge",
+      "n": "Cloud DNS",
+      "sub": "Wildcard record",
+      "zone": "Edge | shared",
+      "meta": [
+        [
+          "tenancy",
+          "One wildcard record resolves every tenant subdomain."
+        ],
+        [
+          "data",
+          "None."
+        ],
+        [
+          "failure mode",
+          "Managed and anycast. Onboarding a tenant needs no DNS change, so there is no per-tenant record to get wrong."
+        ],
+        [
+          "scaling",
+          "Tenant count has no effect — the record is written once."
+        ]
+      ]
+    },
+    {
+      "k": "ingress",
+      "z": "edge",
+      "n": "Nginx ingress",
+      "sub": "TLS | host routing",
+      "zone": "Edge | shared",
+      "meta": [
+        [
+          "tenancy",
+          "Shared across all tenants; the host header selects the namespace."
+        ],
+        [
+          "data",
+          "None — stateless."
         ],
         [
           "failure mode",
@@ -245,74 +345,174 @@
         ],
         [
           "scaling",
-          "Scales on open connections. TLS terminates here and per-route rate limits apply before a request reaches any namespace."
+          "Scales on open connections. Wildcard TLS terminates here and per-route rate limits apply before a request reaches any namespace."
         ]
       ]
     },
     {
-      "k": "api",
-      "z": "app",
-      "n": "API pods",
-      "sub": "per tenant",
-      "zone": "Tenant namespace",
+      "k": "website",
+      "z": "control",
+      "n": "Main website",
+      "sub": "Marketing, signup, plan selection",
+      "zone": "Control plane | shared",
       "meta": [
         [
           "tenancy",
-          "One deployment per tenant namespace"
+          "Shared. The only surface that exists before a tenant does."
         ],
         [
           "data",
-          "MongoDB · Redis in the same namespace"
+          "Signups and plan selection, handed to the provisioner."
         ],
         [
           "failure mode",
-          "Pod loss is invisible — HPA holds a minimum of two, and retries stay inside the namespace. A tenant cannot fail into another tenant."
+          "An outage blocks new signups but touches no existing tenant."
         ],
         [
           "scaling",
-          "Horizontal pod autoscaling on CPU and in-flight requests, 2 → 12 pods per tenant."
+          "Stateless replicas behind the same ingress."
         ]
       ]
     },
     {
-      "k": "workers",
+      "k": "provisioner",
+      "z": "control",
+      "n": "Provisioner service",
+      "sub": "Creates namespace, DNS, TLS, Helm release",
+      "zone": "Control plane | shared",
+      "meta": [
+        [
+          "tenancy",
+          "Shared, and the only component allowed to create tenant namespaces."
+        ],
+        [
+          "data",
+          "Writes namespaces, secrets and Helm releases; holds none itself."
+        ],
+        [
+          "failure mode",
+          "Each step is idempotent, so a failed onboarding is retried rather than half-applied."
+        ],
+        [
+          "scaling",
+          "Runs on demand at signup. Onboarding a tenant is minutes, not a deploy."
+        ]
+      ]
+    },
+    {
+      "k": "registry",
+      "z": "control",
+      "n": "Client and plan registry",
+      "sub": "Tenant metadata, entitlements, usage limits",
+      "zone": "Control plane | shared",
+      "meta": [
+        [
+          "tenancy",
+          "Shared index of every tenant — the one place that knows they all exist."
+        ],
+        [
+          "data",
+          "Metadata, entitlements and usage counters. No conversation data."
+        ],
+        [
+          "failure mode",
+          "Entitlements are cached in each namespace, so a registry outage does not stop tenants serving."
+        ],
+        [
+          "scaling",
+          "Small and read-heavy; reads are cached per namespace."
+        ]
+      ]
+    },
+    {
+      "k": "frontend",
       "z": "app",
-      "n": "Training workers",
-      "sub": "queue driven",
+      "n": "Frontend",
+      "sub": "React dashboard",
       "zone": "Tenant namespace",
       "meta": [
         [
           "tenancy",
-          "One worker set per tenant"
+          "One deployment per tenant inside their namespace."
         ],
         [
           "data",
-          "Redis queue · Qdrant collection"
+          "None held; everything is fetched from that tenant’s backend."
         ],
         [
           "failure mode",
-          "Jobs are idempotent and re-queued. A crashed worker costs one retry, never a half-written vector index."
+          "Independent per tenant. A bad release can be rolled back for one organisation alone."
         ],
         [
           "scaling",
-          "Driven by queue length. A large training run in one tenant cannot starve another — quotas are set at the namespace."
+          "Static assets, so cost is flat regardless of tenant count."
+        ]
+      ]
+    },
+    {
+      "k": "backend",
+      "z": "app",
+      "n": "Node backend",
+      "sub": "3-10 replicas, HPA scaled",
+      "zone": "Tenant namespace",
+      "meta": [
+        [
+          "tenancy",
+          "One deployment per tenant. No request ever crosses a namespace boundary."
+        ],
+        [
+          "data",
+          "Reads and writes only the stores inside its own namespace."
+        ],
+        [
+          "failure mode",
+          "Liveness and readiness probes with rolling updates and graceful termination. A crash loop is contained to one tenant."
+        ],
+        [
+          "scaling",
+          "Horizontal pod autoscaler, 3 to 10 replicas on CPU and request concurrency."
+        ]
+      ]
+    },
+    {
+      "k": "rag",
+      "z": "app",
+      "n": "Python RAG service",
+      "sub": "Ingestion and query",
+      "zone": "Tenant namespace",
+      "meta": [
+        [
+          "tenancy",
+          "Per tenant. Retrieval is scoped to their collection and cannot address another."
+        ],
+        [
+          "data",
+          "Ingestion: documents uploaded or crawled, split and overlapped, embedded, upserted. Query: user turn embedded, top-k retrieved and filtered, prompt assembled, reply streamed."
+        ],
+        [
+          "failure mode",
+          "Ingestion is queued and resumable; a failed batch does not block serving."
+        ],
+        [
+          "scaling",
+          "Ingestion workers scale on queue depth, independently of query traffic."
         ]
       ]
     },
     {
       "k": "mongo",
       "z": "data",
-      "n": "MongoDB",
-      "sub": "StatefulSet",
+      "n": "MongoDB StatefulSet",
+      "sub": "Conversations and config",
       "zone": "Tenant data store",
       "meta": [
         [
           "tenancy",
-          "Dedicated StatefulSet + PVC per tenant"
+          "Dedicated StatefulSet and PVC per tenant."
         ],
         [
           "data",
-          "Documents, config, conversation history"
+          "Documents, configuration, conversation history."
         ],
         [
           "failure mode",
@@ -325,102 +525,327 @@
       ]
     },
     {
+      "k": "qdrant",
+      "z": "data",
+      "n": "Qdrant vector store",
+      "sub": "HNSW index, per-tenant collection",
+      "zone": "Tenant data store",
+      "meta": [
+        [
+          "tenancy",
+          "One collection per organisation. Retrieval cannot address another collection."
+        ],
+        [
+          "data",
+          "Embeddings of that tenant’s documents only."
+        ],
+        [
+          "failure mode",
+          "Rebuildable from source documents, so a corrupt index is a re-ingest rather than a data loss."
+        ],
+        [
+          "scaling",
+          "HNSW index sized per collection; a large tenant does not slow a small one."
+        ]
+      ]
+    },
+    {
       "k": "redis",
       "z": "data",
       "n": "Redis",
-      "sub": "cache · queue",
+      "sub": "Sessions, cache, rate limits",
       "zone": "Tenant data store",
       "meta": [
         [
           "tenancy",
-          "Per tenant instance"
+          "One instance per tenant. Rate limit counters cannot leak across organisations."
         ],
         [
           "data",
-          "Sessions, job queue, rate counters"
+          "Sessions, hot cache and rate-limit counters. Nothing that cannot be rebuilt."
         ],
         [
           "failure mode",
-          "Treated as disposable — a cold cache costs latency for a few seconds, not correctness. Queue state is re-derivable from Mongo."
+          "Treated as disposable — a loss costs a cold cache, not a recovery."
         ],
         [
           "scaling",
-          "Memory-bound; eviction policy set per plan tier."
+          "Memory-bound and sized per plan tier."
         ]
       ]
     },
     {
-      "k": "qdrant",
-      "z": "data",
-      "n": "Qdrant",
-      "sub": "vectors",
-      "zone": "Tenant data store",
-      "meta": [
-        [
-          "tenancy",
-          "One collection per organisation"
-        ],
-        [
-          "data",
-          "Embeddings of tenant-private documents"
-        ],
-        [
-          "failure mode",
-          "Collections are rebuildable from source documents; a corrupt index is a re-embed job, not data loss."
-        ],
-        [
-          "scaling",
-          "Sized on document volume. Retrieval never crosses a collection boundary — that is the whole isolation guarantee."
-        ]
-      ]
-    },
-    {
-      "k": "billing",
+      "k": "chargebee",
       "z": "plat",
       "n": "Chargebee",
-      "sub": "plans · billing",
+      "sub": "Subscriptions, plans, entitlements",
       "zone": "Shared platform",
       "meta": [
         [
           "tenancy",
-          "Shared, tenant-keyed"
+          "Shared. One subscription per organisation."
         ],
         [
           "data",
-          "Subscriptions, invoices, plan state"
+          "Billing state only; no product data."
         ],
         [
           "failure mode",
-          "A billing outage never blocks serving. Entitlements are cached in the platform and enforced locally."
+          "Entitlements are enforced in the platform, not the billing provider, so a provider outage cannot open or close access by accident."
         ],
         [
           "scaling",
-          "Webhook driven. A plan change applies on signature, not on the next sync."
+          "Webhook driven; volume follows plan changes, not traffic."
         ]
       ]
     },
     {
-      "k": "obs",
+      "k": "llm",
       "z": "plat",
-      "n": "Observability",
-      "sub": "SLO · alerts",
+      "n": "LLM and embedding APIs",
+      "sub": "Inference and vector generation",
       "zone": "Shared platform",
       "meta": [
         [
           "tenancy",
-          "Shared, labelled per tenant"
+          "Shared providers, called per tenant with their own budget and quota."
         ],
         [
           "data",
-          "Metrics, logs, traces"
+          "Prompt and retrieved context in, completion out. Nothing is retained provider-side."
         ],
         [
           "failure mode",
-          "Independent of the serving path — if monitoring dies, serving continues and alerting fails loudly rather than silently."
+          "Timeouts and retries with a fallback model, so a provider incident degrades quality rather than stopping replies."
         ],
         [
           "scaling",
-          "Per-tenant labels on every metric, so an SLO breach is attributable to one namespace in seconds."
+          "The dominant cost per conversation, metered per tenant and capped by plan."
+        ]
+      ]
+    },
+    {
+      "k": "models",
+      "z": "plat",
+      "n": "Prompt and model registry",
+      "sub": "Versions, evaluation, rollback",
+      "zone": "Shared platform",
+      "meta": [
+        [
+          "tenancy",
+          "Shared registry; a tenant is pinned to a version."
+        ],
+        [
+          "data",
+          "Prompt templates, model versions and evaluation results."
+        ],
+        [
+          "failure mode",
+          "Every prompt change is versioned, so a regression is a rollback rather than a rewrite."
+        ],
+        [
+          "scaling",
+          "Changes are promoted per tenant, not globally."
+        ]
+      ]
+    },
+    {
+      "k": "monitoring",
+      "z": "plat",
+      "n": "Cloud Monitoring",
+      "sub": "Metrics, logs, uptime checks",
+      "zone": "Shared platform",
+      "meta": [
+        [
+          "tenancy",
+          "Shared, with per-namespace labels so a tenant can be isolated in a query."
+        ],
+        [
+          "data",
+          "Metrics, logs and uptime checks. No message content."
+        ],
+        [
+          "failure mode",
+          "Independent of the serving path — losing observability never takes down a tenant."
+        ],
+        [
+          "scaling",
+          "Retention tiered by signal; alerts route to the on-call escalation."
+        ]
+      ]
+    },
+    {
+      "k": "aiops",
+      "z": "plat",
+      "n": "AIOps agent",
+      "sub": "Diagnoses cluster incidents",
+      "zone": "Shared platform",
+      "meta": [
+        [
+          "tenancy",
+          "Shared. Reads cluster state, never tenant data."
+        ],
+        [
+          "data",
+          "Events, metrics and pod state."
+        ],
+        [
+          "failure mode",
+          "Advisory only — it proposes and explains, it does not act unattended."
+        ],
+        [
+          "scaling",
+          "Runs on incident, not on traffic."
+        ]
+      ]
+    },
+    {
+      "k": "netpol",
+      "z": "plat",
+      "n": "Network policies",
+      "sub": "Deny all traffic by default",
+      "zone": "Shared platform",
+      "meta": [
+        [
+          "tenancy",
+          "Applied to every namespace. Default deny, then explicit allow."
+        ],
+        [
+          "data",
+          "None."
+        ],
+        [
+          "failure mode",
+          "The isolation guarantee lives here rather than in application code, which is why tenant count grows without the blast radius growing with it."
+        ],
+        [
+          "scaling",
+          "Templated per namespace at provisioning time."
+        ]
+      ]
+    },
+    {
+      "k": "iam",
+      "z": "plat",
+      "n": "Cloud IAM",
+      "sub": "Least-privilege service accounts",
+      "zone": "Shared platform",
+      "meta": [
+        [
+          "tenancy",
+          "One service account per workload, scoped to its own resources."
+        ],
+        [
+          "data",
+          "None."
+        ],
+        [
+          "failure mode",
+          "A compromised workload reaches only what its account allows."
+        ],
+        [
+          "scaling",
+          "Bound at deploy time; no long-lived keys in the cluster."
+        ]
+      ]
+    },
+    {
+      "k": "actions",
+      "z": "build",
+      "n": "GitHub Actions",
+      "sub": "Build, test, lint, image tag",
+      "zone": "Build and release",
+      "meta": [
+        [
+          "tenancy",
+          "Shared pipeline. Every tenant runs the same tested build."
+        ],
+        [
+          "data",
+          "Source and build artefacts only."
+        ],
+        [
+          "failure mode",
+          "A failing gate stops the release before it reaches a cluster."
+        ],
+        [
+          "scaling",
+          "One pipeline regardless of tenant count."
+        ]
+      ]
+    },
+    {
+      "k": "helm",
+      "z": "build",
+      "n": "Helm release",
+      "sub": "Chart per service, values per tenant",
+      "zone": "Build and release",
+      "meta": [
+        [
+          "tenancy",
+          "One chart, values per tenant. New verticals are configuration rather than a second codebase."
+        ],
+        [
+          "data",
+          "Release manifests and versioned values."
+        ],
+        [
+          "failure mode",
+          "Versioned release history, so a bad deploy is one rollback away — per tenant if needed."
+        ],
+        [
+          "scaling",
+          "Rolls out per namespace, so a release can be staged rather than global."
+        ]
+      ]
+    },
+    {
+      "k": "secrets",
+      "z": "build",
+      "n": "Secret Manager",
+      "sub": "Injected at deploy time",
+      "zone": "Build and release",
+      "meta": [
+        [
+          "tenancy",
+          "Per-tenant secrets, injected at deploy and never committed."
+        ],
+        [
+          "data",
+          "Credentials and API keys."
+        ],
+        [
+          "failure mode",
+          "Rotation is a redeploy, not an edit in a running pod."
+        ],
+        [
+          "scaling",
+          "Written once at provisioning, read at deploy."
+        ]
+      ]
+    },
+    {
+      "k": "storage",
+      "z": "build",
+      "n": "Cloud Storage",
+      "sub": "Database dumps and snapshots",
+      "zone": "Release and backup",
+      "meta": [
+        [
+          "tenancy",
+          "One prefix per tenant, restorable independently."
+        ],
+        [
+          "data",
+          "Nightly dumps and PVC snapshots."
+        ],
+        [
+          "failure mode",
+          "Restores are rehearsed per tenant, so recovery is a known path rather than an improvisation."
+        ],
+        [
+          "scaling",
+          "Lifecycle rules tier old snapshots to colder storage."
         ]
       ]
     }
@@ -739,5 +1164,19 @@
         "weight": 0.22
       }
     ]
-  }
+  },
+  "architectureTour": [
+    "widget",
+    "dns",
+    "ingress",
+    "frontend",
+    "backend",
+    "rag",
+    "qdrant",
+    "mongo",
+    "llm",
+    "netpol",
+    "monitoring",
+    "helm"
+  ]
 }
