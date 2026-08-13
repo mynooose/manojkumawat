@@ -1,82 +1,234 @@
-/* Base layer. Component styling lives in co-located CSS modules. */
+@import 'tailwindcss';
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/**
+ * Design tokens from DESIGN-SPEC.md, mapped into the Tailwind theme.
+ *
+ * Tailwind v4 is CSS-first: `@theme` is the v4 equivalent of the
+ * `tailwind.config.ts` theme block the spec asks for, and generates the same
+ * utilities (bg-surface, text-text-2, border-line, …).
+ */
+@theme {
+  /* ---- colour ---- */
+  --color-bg: #0c0c0d;
+  --color-surface: #131315;
+  --color-surface-2: #101012;
+  --color-surface-3a: #17171a;
+  --color-surface-3b: #0f0f11;
+  --color-skeleton-a: #141417;
+  --color-skeleton-b: #1d1d21;
+
+  --color-line: #232326;
+  --color-line-2: #2a2a2c;
+  --color-line-3: #1a1a1d;
+  --color-line-3b: #1c1c1f;
+  --color-line-hover: #3a3a3e;
+
+  --color-text: #f2f2f0;
+  --color-text-2: #a8a6a1;
+  --color-text-3: #8e8c86;
+  --color-text-4: #78766f;
+  --color-text-5: #6c6a66;
+  --color-text-6: #4a4945;
+
+  --color-accent: #ff5c2b;
+  --color-accent-2: #7858ff;
+  /* reached-but-not-current stepper border */
+  --color-accent-dim: #5a3324;
+
+  /* ---- radii ---- */
+  --radius-pill: 100px;
+  --radius-container: 28px;
+  --radius-panel: 24px;
+  --radius-card: 18px;
+  --radius-inner: 16px;
+  --radius-node: 14px;
+
+  /* ---- type ---- */
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --text-h1: clamp(48px, 9.4vw, 164px);
+  --text-h2: clamp(32px, 5.4vw, 76px);
+  --text-h2-contact: clamp(38px, 7.2vw, 120px);
+  --text-h3-feature: clamp(24px, 3vw, 42px);
+
+  /* ---- motion ---- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-html {
-  scroll-behavior: smooth;
-  /* The header is sticky, so anchor targets need clearance. */
-  scroll-padding-top: 84px;
+/* Section rhythm, used by every <Section>. */
+@utility section-x {
+  padding-inline: clamp(20px, 4vw, 56px);
 }
 
-body {
-  margin: 0;
-  background: var(--c-page);
-  color: var(--c-muted);
-  font-family: var(--f-body);
-  font-size: 17px;
-  line-height: 1.7;
-  min-height: 100vh;
-  overflow-wrap: break-word;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@utility section-y {
+  padding-block: clamp(52px, 6vw, 100px);
 }
 
-a {
-  color: var(--c-ink);
-  text-decoration: none;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* The pill nav floats over content, so anchors need clearance. */
+    scroll-padding-top: 96px;
+  }
+
+  /* The spec requires this: nothing may scroll sideways at any width. */
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  body {
+    background: var(--color-bg);
+    color: var(--color-text-2);
+    font-family: var(--font-display);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-text);
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-bg);
+  }
+
+  /* Spec: 1px orange ring, offset 2-4px, on every interactive element. */
+  :focus-visible {
+    outline: 1px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
 }
 
-a:hover {
-  color: var(--c-accent);
+/* ---------- keyframes ---------- */
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-::selection {
-  background: var(--c-accent);
-  color: #ffffff;
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
-img,
-svg {
-  max-width: 100%;
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
 }
 
-/* A single, consistent focus treatment. The original set this per-element. */
-:focus-visible {
-  outline: 2px solid var(--c-ink);
-  outline-offset: 3px;
+/* Two identical keyframes so changing the animation name restarts the slide
+   when the index changes. Documented in DESIGN-SPEC.md. */
+@keyframes slideInA {
+  from {
+    opacity: 0;
+    transform: translateX(34px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-h1,
-h2,
-h3 {
-  font-family: var(--f-display);
-  font-weight: 400;
-  color: var(--c-ink);
+@keyframes slideInB {
+  from {
+    opacity: 0;
+    transform: translateX(34px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/** Centred content column shared by every section. */
-.shell {
-  max-width: var(--w-max);
-  margin: 0 auto;
-  padding-left: var(--gutter);
-  padding-right: var(--gutter);
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
-/** Visible only to assistive technology. */
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
+@layer components {
+  /* fill-mode backwards, never both: an animation that never starts must
+     still leave its content visible. */
+  .rise {
+    animation: riseIn 0.9s var(--ease-out-expo) backwards;
+  }
+
+  .marquee-track {
+    animation: marquee 44s linear infinite;
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      var(--color-skeleton-a) 25%,
+      var(--color-skeleton-b) 50%,
+      var(--color-skeleton-a) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  .slide-a {
+    animation: slideInA 0.45s var(--ease-out-expo);
+  }
+
+  .slide-b {
+    animation: slideInB 0.45s var(--ease-out-expo);
+  }
+
+  /* Layered depth for the five large surfaces: a hairline top highlight plus
+     a soft drop, so panels read as raised rather than flat fills. */
+  .surface-depth {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.035),
+      0 18px 44px rgba(0, 0, 0, 0.42);
+  }
+
+  /* KPI cards take the highlight only — they sit on a surface that already
+     has the drop, and stacking both muddies the edge. */
+  .surface-inset {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  }
+
+  .modal-in {
+    animation: modalIn 0.4s var(--ease-out-expo) backwards;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -87,8 +239,7 @@ h3 {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }
