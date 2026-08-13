@@ -109,9 +109,19 @@ export function CaseStudyModal({ index, project, onClose }: CaseStudyModalProps)
 
           {project.diagram ? (
             <div className="mt-9">
-              <p className="m-0 mb-3 font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase">
-                Production architecture
-              </p>
+              <div className="mb-3 flex flex-wrap items-baseline justify-between gap-3">
+                <p className="m-0 font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase">
+                  Production architecture
+                </p>
+                <a
+                  href="/architecture"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-mono text-[10.5px] tracking-[0.12em] text-accent uppercase hover:underline"
+                >
+                  Open full view &#8599;
+                </a>
+              </div>
               <div className="max-h-[70vh] overflow-auto rounded-panel border border-line bg-white">
                 {/* Plain img on purpose: this is a vector diagram in a scroll
                     container, so next/image sizing would fight it. */}
