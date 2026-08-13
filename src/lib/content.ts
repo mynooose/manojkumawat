@@ -150,7 +150,7 @@ interface Content {
 const content = raw as unknown as Content;
 
 /** The one architecture diagram the site ships, served from /public. */
-export const DIAGRAM_SRC = '/architecture-chatbot.svg';
+export const DIAGRAM_SRC = '/architecture.svg';
 
 export const META = content.meta;
 export const HERO = content.hero;

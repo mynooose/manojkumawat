@@ -16,10 +16,21 @@ const nextConfig: NextConfig = {
   // typecheck -> lint -> build so CI still gates on all three.
   typescript: { ignoreBuildErrors: false },
 
+  /** The diagram used to live at a longer filename; keep that link working. */
+  async redirects() {
+    return [
+      {
+        source: '/architecture-chatbot.svg',
+        destination: '/architecture.svg',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {
-        source: '/:path(portrait-manoj.png|architecture-chatbot.svg|apple-touch-icon.png)',
+        source: '/:path(portrait-manoj.png|architecture.svg|apple-touch-icon.png)',
         headers: [{ key: 'Cache-Control', value: IMMUTABLE }],
       },
       {
