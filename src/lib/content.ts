@@ -68,6 +68,14 @@ export interface ArchitectureNode {
   readonly meta: NodeMeta;
 }
 
+/** A connection recovered from the architecture diagram. */
+export interface ArchitectureEdge {
+  readonly from: string;
+  readonly to: string;
+  /** flow = request path, integration = managed service, release = build. */
+  readonly kind: 'flow' | 'integration' | 'release';
+}
+
 export interface ProcessStage {
   readonly t: string;
   readonly d: string;
@@ -132,6 +140,7 @@ interface Content {
   readonly architectureNodes: readonly ArchitectureNode[];
   /** Node keys the ambient tour walks, in request order. */
   readonly architectureTour: readonly string[];
+  readonly architectureEdges: readonly ArchitectureEdge[];
   readonly processStages: readonly ProcessStage[];
   readonly career: readonly CareerEntry[];
   readonly skills: readonly SkillDomain[];
@@ -151,6 +160,7 @@ export const FOOTER = content.footer;
 export const PROJECTS = content.projects;
 export const ARCHITECTURE_NODES = content.architectureNodes;
 export const ARCHITECTURE_TOUR = content.architectureTour;
+export const ARCHITECTURE_EDGES = content.architectureEdges;
 export const PROCESS_STAGES = content.processStages;
 export const CAREER = content.career;
 export const SKILLS = content.skills;

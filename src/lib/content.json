@@ -1178,5 +1178,157 @@
     "netpol",
     "monitoring",
     "helm"
+  ],
+  "architectureEdges": [
+    {
+      "from": "dashboard",
+      "to": "dns",
+      "kind": "flow"
+    },
+    {
+      "from": "widget",
+      "to": "dns",
+      "kind": "flow"
+    },
+    {
+      "from": "restapi",
+      "to": "dns",
+      "kind": "flow"
+    },
+    {
+      "from": "dns",
+      "to": "ingress",
+      "kind": "flow"
+    },
+    {
+      "from": "ingress",
+      "to": "website",
+      "kind": "flow"
+    },
+    {
+      "from": "ingress",
+      "to": "provisioner",
+      "kind": "flow"
+    },
+    {
+      "from": "ingress",
+      "to": "frontend",
+      "kind": "flow"
+    },
+    {
+      "from": "ingress",
+      "to": "backend",
+      "kind": "flow"
+    },
+    {
+      "from": "website",
+      "to": "provisioner",
+      "kind": "flow"
+    },
+    {
+      "from": "provisioner",
+      "to": "registry",
+      "kind": "flow"
+    },
+    {
+      "from": "provisioner",
+      "to": "frontend",
+      "kind": "flow"
+    },
+    {
+      "from": "frontend",
+      "to": "backend",
+      "kind": "flow"
+    },
+    {
+      "from": "backend",
+      "to": "rag",
+      "kind": "flow"
+    },
+    {
+      "from": "backend",
+      "to": "mongo",
+      "kind": "flow"
+    },
+    {
+      "from": "backend",
+      "to": "redis",
+      "kind": "flow"
+    },
+    {
+      "from": "rag",
+      "to": "qdrant",
+      "kind": "flow"
+    },
+    {
+      "from": "rag",
+      "to": "mongo",
+      "kind": "flow"
+    },
+    {
+      "from": "actions",
+      "to": "helm",
+      "kind": "release"
+    },
+    {
+      "from": "helm",
+      "to": "secrets",
+      "kind": "release"
+    },
+    {
+      "from": "helm",
+      "to": "frontend",
+      "kind": "release"
+    },
+    {
+      "from": "helm",
+      "to": "backend",
+      "kind": "release"
+    },
+    {
+      "from": "mongo",
+      "to": "storage",
+      "kind": "release"
+    },
+    {
+      "from": "registry",
+      "to": "chargebee",
+      "kind": "integration"
+    },
+    {
+      "from": "registry",
+      "to": "llm",
+      "kind": "integration"
+    },
+    {
+      "from": "rag",
+      "to": "llm",
+      "kind": "integration"
+    },
+    {
+      "from": "rag",
+      "to": "models",
+      "kind": "integration"
+    },
+    {
+      "from": "backend",
+      "to": "monitoring",
+      "kind": "integration"
+    },
+    {
+      "from": "backend",
+      "to": "aiops",
+      "kind": "integration"
+    },
+    {
+      "from": "netpol",
+      "to": "backend",
+      "kind": "integration"
+    },
+    {
+      "from": "iam",
+      "to": "backend",
+      "kind": "integration"
+    }
   ]
 }

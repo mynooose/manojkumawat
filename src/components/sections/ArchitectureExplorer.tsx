@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
+  ARCHITECTURE_EDGES,
   ARCHITECTURE_NODES,
   ARCHITECTURE_TOUR,
   type ArchitectureNode,
@@ -10,6 +11,7 @@ import {
 import { Section } from '@/components/ui/Section';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Reveal } from '@/components/ui/Reveal';
+import { EdgeLayer } from '@/components/ui/EdgeLayer';
 import { useInView } from '@/hooks/useInView';
 import { useInterval } from '@/hooks/useInterval';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
@@ -89,8 +91,22 @@ export function ArchitectureExplorer() {
     return out;
   }, [pinned, step]);
 
-  const stateOf = (k: string): NodeState =>
-    k === selected ? 'current' : trailing.has(k) ? 'trace' : 'idle';
+  /** Everything the focused node connects to, in either direction. */
+  const neighbours = useMemo(() => {
+    const out = new Set<string>();
+    for (const e of ARCHITECTURE_EDGES) {
+      if (e.from === selected) out.add(e.to);
+      if (e.to === selected) out.add(e.from);
+    }
+    return out;
+  }, [selected]);
+
+  const stateOf = (k: string): NodeState => {
+    if (k === selected) return 'current';
+    if (neighbours.has(k)) return 'branch';
+    if (trailing.has(k)) return 'trace';
+    return 'idle';
+  };
 
   const node = (n: ArchitectureNode) => (
     <Node key={n.k} node={n} state={stateOf(n.k)} onSelect={pick} />
@@ -101,12 +117,17 @@ export function ArchitectureExplorer() {
       <SectionHeading
         eyebrow="02 — architecture"
         title="One platform, fifty-two tenants"
-        meta={touring ? 'following a request · click to hold' : 'click any node'}
+        meta={
+          touring
+            ? 'following a request · click to hold'
+            : `${neighbours.size} connection${neighbours.size === 1 ? '' : 's'} · click any node`
+        }
       />
 
       <div className="grid grid-cols-1 gap-[clamp(18px,2.2vw,32px)] min-[1000px]:grid-cols-[1.6fr_1fr]">
         <Reveal className="min-w-0" delay={60}>
-          <div ref={ref} className="flex flex-col">
+          <div ref={ref} className="relative flex flex-col">
+            <EdgeLayer containerRef={ref} edges={ARCHITECTURE_EDGES} selected={selected} />
             <Region label="Client and infrastructure">
               <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
                 {byZone.client.map((n) => node(n))}
@@ -260,13 +281,15 @@ function FlowH({ active }: { active: boolean }) {
   );
 }
 
-/** current = where the tour is; trace = the two stops behind it. */
-type NodeState = 'current' | 'trace' | 'idle';
+/** current = focused; branch = wired to it; trace = the tour's last two stops. */
+type NodeState = 'current' | 'branch' | 'trace' | 'idle';
 
 const NODE_STYLE: Record<NodeState, string> = {
   current:
     'border-accent bg-[rgba(255,92,43,0.12)] text-text shadow-[0_0_0_1px_rgba(255,92,43,0.35),0_8px_26px_rgba(255,92,43,0.12)]',
-  trace: 'border-accent/45 bg-[rgba(255,92,43,0.05)] text-text',
+  /** Directly connected to the focused node. */
+  branch: 'border-accent/55 bg-[rgba(255,92,43,0.06)] text-text',
+  trace: 'border-accent/40 bg-[rgba(255,92,43,0.04)] text-text',
   idle: 'border-line-2 bg-surface text-text-2 hover:border-line-hover',
 };
 
@@ -282,9 +305,10 @@ function Node({
   return (
     <button
       type="button"
+      data-node={node.k}
       aria-pressed={state === 'current'}
       onClick={() => onSelect(node.k)}
-      className={`min-w-0 rounded-node border p-[10px] text-left transition duration-300 hover:-translate-y-[2px] ${NODE_STYLE[state]}`}
+      className={`relative z-10 min-w-0 rounded-node border p-[10px] text-left transition duration-300 hover:-translate-y-[2px] ${NODE_STYLE[state]}`}
     >
       {/* The name wraps: these are real component names and clipping them
           ("Client and plan re…") costs more than a second line. */}
