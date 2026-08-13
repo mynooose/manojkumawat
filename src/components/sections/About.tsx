@@ -25,7 +25,7 @@ export function About() {
 
       <div className="grid grid-cols-1 gap-[clamp(18px,2.2vw,32px)] min-[1000px]:grid-cols-[0.8fr_1.2fr]">
         <Reveal delay={60}>
-          <div className="overflow-hidden rounded-container border border-line bg-surface">
+          <div className="surface-depth overflow-hidden rounded-container border border-line bg-surface">
             <Image
               src="/portrait-manoj.png"
               alt={META.name}

@@ -60,7 +60,7 @@ export function CaseStudyModal({ index, project, onClose }: CaseStudyModalProps)
   }, [onClose]);
 
   return (
-    <div className="fixed inset-0 z-[200]">
+    <div className="modal-in fixed inset-0 z-[200]">
       <div
         className="absolute inset-0 bg-[rgba(6,6,7,0.82)] backdrop-blur-[6px]"
         onClick={onClose}

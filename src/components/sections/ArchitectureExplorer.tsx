@@ -64,7 +64,7 @@ export function ArchitectureExplorer() {
 
         {/* Detail panel — sticky on desktop only. */}
         <Reveal className="min-w-0" delay={120}>
-          <div className="static min-[1000px]:sticky min-[1000px]:top-[104px] rounded-container border border-line bg-surface p-[clamp(18px,2.2vw,26px)]">
+          <div className="surface-depth static min-[1000px]:sticky min-[1000px]:top-[104px] rounded-container border border-line bg-surface p-[clamp(18px,2.2vw,26px)]">
             <p className="m-0 mb-2 font-mono text-[10px] tracking-[0.16em] text-accent uppercase">
               {active.zone}
             </p>

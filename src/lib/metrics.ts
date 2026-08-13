@@ -44,8 +44,31 @@ export function path(vals: readonly number[], close: boolean): string {
   return d.trim();
 }
 
-/** Number of samples plotted. */
+/** Number of samples plotted on the main chart. */
 export const SAMPLES = 26;
+/** Last bucket index; the pointer maps into 0..BUCKET_MAX. */
+export const BUCKET_MAX = 25;
+/** Points in a KPI sparkline. */
+export const SPARK_POINTS = 14;
+/** Bucket the readouts fall back to when the pointer is away. */
+export const DEFAULT_BUCKET = 13;
+
+/**
+ * SVG path for a KPI sparkline across a `0 0 60 16` viewBox.
+ * Copied from the reference so the trend lines match.
+ */
+export function spark(v: readonly number[]): string {
+  let d = '';
+  for (let i = 0; i < v.length; i++) {
+    d +=
+      (i === 0 ? 'M' : 'L') +
+      ((i / (v.length - 1)) * 60).toFixed(2) +
+      ' ' +
+      (16 - (v[i] ?? 0) * 14).toFixed(2) +
+      ' ';
+  }
+  return d.trim();
+}
 
 export interface Kpi {
   readonly k: string;
@@ -54,6 +77,10 @@ export interface Kpi {
   readonly d: string;
   /** Delta colour: accent for movement, muted for a static reference. */
   readonly accent: boolean;
+  /** Sparkline path, plotted bottom-right of the card. */
+  readonly spark: string;
+  /** Sparkline stroke colour. */
+  readonly sparkColor: string;
 }
 
 export interface ConsoleSnapshot {
@@ -62,6 +89,33 @@ export interface ConsoleSnapshot {
   readonly linePath: string;
   readonly errPath: string;
   readonly rows: readonly { readonly n: string; readonly w: string; readonly v: string }[];
+  /** Raw series, needed to position the crosshair dot and read the tooltip. */
+  readonly vals: readonly number[];
+  readonly lat: readonly number[];
+  readonly total: number;
+}
+
+export interface HoverReadout {
+  readonly label: string;
+  readonly requests: string;
+  readonly p95: string;
+  /** Percentages, for absolute positioning over the chart. */
+  readonly left: string;
+  readonly top: string;
+}
+
+/** Tooltip and crosshair values for one bucket. */
+export function readout(snap: ConsoleSnapshot, bucket: number): HoverReadout {
+  const i = Math.max(0, Math.min(BUCKET_MAX, bucket));
+  const v = snap.vals[i] ?? 0;
+  const mean = snap.vals.reduce((a, b) => a + b, 0) / SAMPLES;
+  return {
+    label: 'bucket ' + String(i + 1).padStart(2, '0'),
+    requests: fmt(Math.round((snap.total * (v / mean)) / SAMPLES)) + ' req',
+    p95: 96 + Math.round((snap.lat[i] ?? 0) * 120) + ' ms',
+    left: ((i / BUCKET_MAX) * 100).toFixed(2) + '%',
+    top: (((34 - v * 32) / 34) * 100).toFixed(2) + '%',
+  };
 }
 
 const fmt = (n: number) => n.toLocaleString('en-US');
@@ -87,10 +141,42 @@ export function snapshot(
 
   return {
     kpis: [
-      { k: 'requests', v: fmt(total), u: '', d: '+12.4% vs previous', accent: true },
-      { k: 'p95 latency', v: String(p95), u: ' ms', d: 'SLO 250 ms', accent: false },
-      { k: 'error rate', v: err, u: ' %', d: 'budget 0.5%', accent: true },
-      { k: 'active users', v: fmt(users), u: '', d: 'unique in window', accent: false },
+      {
+        k: 'requests',
+        v: fmt(total),
+        u: '',
+        d: '+12.4% vs previous',
+        accent: true,
+        spark: spark(vals.slice(0, SPARK_POINTS)),
+        sparkColor: '#FF5C2B',
+      },
+      {
+        k: 'p95 latency',
+        v: String(p95),
+        u: ' ms',
+        d: 'SLO 250 ms',
+        accent: false,
+        spark: spark(lat.slice(0, SPARK_POINTS)),
+        sparkColor: '#7858FF',
+      },
+      {
+        k: 'error rate',
+        v: err,
+        u: ' %',
+        d: 'budget 0.5%',
+        accent: true,
+        spark: spark(series(tenantIndex, rangeIndex + 7, SPARK_POINTS)),
+        sparkColor: '#3A3A3E',
+      },
+      {
+        k: 'active users',
+        v: fmt(users),
+        u: '',
+        d: 'unique in window',
+        accent: false,
+        spark: spark(series(tenantIndex, rangeIndex + 9, SPARK_POINTS)),
+        sparkColor: '#3A3A3E',
+      },
     ],
     areaPath: path(vals, true),
     linePath: path(vals, false),
@@ -100,5 +186,8 @@ export function snapshot(
       w: Math.round(r.weight * 100) + '%',
       v: fmt(Math.round(total * r.weight * 0.21)),
     })),
+    vals,
+    lat,
+    total,
   };
 }

@@ -96,7 +96,7 @@ export function Engagement() {
           </ol>
         </div>
 
-        <div className="rounded-container border border-line bg-surface p-[clamp(18px,2.4vw,30px)]">
+        <div className="surface-depth rounded-container border border-line bg-surface p-[clamp(18px,2.4vw,30px)]">
           <p className="m-0 mb-2 font-mono text-[10.5px] tracking-[0.14em] text-accent uppercase">
             0{step + 1} — {active.t}
           </p>

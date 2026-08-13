@@ -75,7 +75,7 @@ export function SelectedWork() {
         {/* Detail panel */}
         <Reveal
           id="work-panel"
-          className="min-w-0 rounded-container border border-line bg-[linear-gradient(155deg,var(--color-surface-3a),var(--color-surface-3b))] p-[clamp(20px,2.6vw,34px)] min-[1000px]:col-span-2"
+          className="surface-depth min-w-0 rounded-container border border-line bg-[linear-gradient(155deg,var(--color-surface-3a),var(--color-surface-3b))] p-[clamp(20px,2.6vw,34px)] min-[1000px]:col-span-2"
           delay={120}
         >
           <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -91,7 +91,7 @@ export function SelectedWork() {
             <button
               type="button"
               onClick={() => setCaseOpen(true)}
-              className="flex-none rounded-pill border border-line-2 px-5 py-3 font-mono text-[11.5px] tracking-[0.08em] text-text uppercase transition duration-200 hover:-translate-y-[2px] hover:border-accent hover:bg-accent hover:text-bg"
+              className="flex-none rounded-pill border border-line-2 px-5 py-3 font-mono text-[11.5px] tracking-[0.08em] text-text uppercase transition duration-200 hover:-translate-y-[2px] hover:border-accent hover:bg-accent hover:text-bg active:translate-y-0 active:scale-[0.985] active:duration-[180ms]"
             >
               Open case study <span aria-hidden="true">&#8599;</span>
             </button>
