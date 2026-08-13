@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { ARCHITECTURE_NODES, type ArchitectureNode } from '@/lib/content';
 import { Section } from '@/components/ui/Section';
 import { SectionHeading } from '@/components/ui/SectionHeading';
@@ -10,6 +10,23 @@ const DEFAULT_NODE = 'api';
 
 export function ArchitectureExplorer() {
   const [selected, setSelected] = useState(DEFAULT_NODE);
+
+  /**
+   * On phones the detail panel sits below the whole diagram, so selecting a
+   * node changed something off-screen. Bring it into view on narrow
+   * viewports; on desktop it is already beside the diagram and sticky.
+   */
+  const pick = useCallback((k: string) => {
+    setSelected(k);
+    if (typeof window === 'undefined' || window.innerWidth >= 1000) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(() =>
+      document.getElementById('architecture-detail')?.scrollIntoView({
+        behavior: reduce ? 'auto' : 'smooth',
+        block: 'center',
+      }),
+    );
+  }, []);
 
   const byZone = useMemo(() => {
     const group = (z: ArchitectureNode['z']) => ARCHITECTURE_NODES.filter((n) => n.z === z);
@@ -33,7 +50,7 @@ export function ArchitectureExplorer() {
           <div className="grid grid-cols-1 gap-3 min-[760px]:grid-cols-2 min-[1000px]:grid-cols-[0.85fr_2fr_0.95fr]">
             <Zone label="Edge · shared">
               {byZone.edge.map((n) => (
-                <Node key={n.k} node={n} active={n.k === selected} onSelect={setSelected} />
+                <Node key={n.k} node={n} active={n.k === selected} onSelect={pick} />
               ))}
             </Zone>
 
@@ -44,19 +61,19 @@ export function ArchitectureExplorer() {
               </p>
               <div className="flex flex-col gap-2">
                 {byZone.app.map((n) => (
-                  <Node key={n.k} node={n} active={n.k === selected} onSelect={setSelected} />
+                  <Node key={n.k} node={n} active={n.k === selected} onSelect={pick} />
                 ))}
               </div>
               <div className="mt-2 grid grid-cols-1 gap-2 min-[760px]:grid-cols-3">
                 {byZone.data.map((n) => (
-                  <Node key={n.k} node={n} active={n.k === selected} onSelect={setSelected} />
+                  <Node key={n.k} node={n} active={n.k === selected} onSelect={pick} />
                 ))}
               </div>
             </div>
 
             <Zone label="Shared platform">
               {byZone.plat.map((n) => (
-                <Node key={n.k} node={n} active={n.k === selected} onSelect={setSelected} />
+                <Node key={n.k} node={n} active={n.k === selected} onSelect={pick} />
               ))}
             </Zone>
           </div>
@@ -64,7 +81,10 @@ export function ArchitectureExplorer() {
 
         {/* Detail panel — sticky on desktop only. */}
         <Reveal className="min-w-0" delay={120}>
-          <div className="surface-depth static min-[1000px]:sticky min-[1000px]:top-[104px] rounded-container border border-line bg-surface p-[clamp(18px,2.2vw,26px)]">
+          <div
+            id="architecture-detail"
+            className="surface-depth static scroll-mt-[96px] rounded-container border border-line bg-surface p-[clamp(18px,2.2vw,26px)] min-[1000px]:sticky min-[1000px]:top-[104px]"
+          >
             <p className="m-0 mb-2 font-mono text-[10px] tracking-[0.16em] text-accent uppercase">
               {active.zone}
             </p>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArchitectureViewer } from '@/components/ui/ArchitectureViewer';
+import { DIAGRAM_SRC } from '@/lib/content';
 
 const TITLE = 'Multi-tenant chatbot SaaS — production architecture';
 const DESCRIPTION =
@@ -39,7 +40,7 @@ export default function ArchitecturePage() {
 
       <main className="min-h-0 flex-1">
         <ArchitectureViewer
-          src="/architecture-chatbot.svg"
+          src={DIAGRAM_SRC}
           alt="Production architecture of a multi-tenant chatbot SaaS on Google Kubernetes Engine"
         />
       </main>

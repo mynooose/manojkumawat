@@ -18,6 +18,8 @@ const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 interface ArchitectureViewerProps {
   src: string;
   alt: string;
+  /** Caption in the control bar. Defaults to the SaaS platform label. */
+  heading?: string;
 }
 
 /**
@@ -31,7 +33,11 @@ interface ArchitectureViewerProps {
  * keyboard shortcuts. Pointer Events cover mouse, trackpad and touch with one
  * code path.
  */
-export function ArchitectureViewer({ src, alt }: ArchitectureViewerProps) {
+export function ArchitectureViewer({
+  src,
+  alt,
+  heading = 'Multi-tenant chatbot SaaS · production architecture',
+}: ArchitectureViewerProps) {
   const frameRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState<Point>({ x: 0, y: 0 });
@@ -198,8 +204,8 @@ export function ArchitectureViewer({ src, alt }: ArchitectureViewerProps) {
     <div className="flex h-full flex-col">
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-line px-[clamp(16px,3vw,28px)] py-3">
-        <p className="m-0 font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase">
-          Multi-tenant chatbot SaaS · production architecture
+        <p className="m-0 hidden font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase min-[560px]:block">
+          {heading}
         </p>
 
         <div className="flex flex-wrap items-center gap-2">

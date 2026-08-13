@@ -38,8 +38,12 @@ export interface Project {
   readonly outcome: string;
   readonly stack: readonly string[];
   readonly layers: readonly ProjectLayer[];
-  readonly caseStudy: readonly { readonly h: string; readonly p: string }[];
-  readonly diagram?: string;
+  readonly caseStudy?: readonly { readonly h: string; readonly p: string }[];
+  /**
+   * Flag, not a path: true means this project ships the architecture diagram
+   * at DIAGRAM_SRC. Only project 01 has one.
+   */
+  readonly diagram?: boolean;
 }
 
 /** `[label, value]` pairs shown in the architecture detail panel. */
@@ -124,6 +128,9 @@ interface Content {
 }
 
 const content = raw as unknown as Content;
+
+/** The one architecture diagram the site ships, served from /public. */
+export const DIAGRAM_SRC = '/architecture-chatbot.svg';
 
 export const META = content.meta;
 export const HERO = content.hero;

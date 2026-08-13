@@ -1,19 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import { ALSO_DELIVERED, PROJECTS } from '@/lib/content';
+import { useCallback, useState } from 'react';
+import { ALSO_DELIVERED, DIAGRAM_SRC, PROJECTS } from '@/lib/content';
 import { Section } from '@/components/ui/Section';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Reveal } from '@/components/ui/Reveal';
-import { CaseStudyModal } from '@/components/ui/CaseStudyModal';
+import { DiagramModal } from '@/components/ui/DiagramModal';
 
 const pad = (n: number) => '0' + (n + 1);
 
 export function SelectedWork() {
   const [selected, setSelected] = useState(0);
-  const [caseOpen, setCaseOpen] = useState(false);
+  const [diagramOpen, setDiagramOpen] = useState(false);
 
   const project = PROJECTS[selected] ?? PROJECTS[0]!;
+
+  /**
+   * On phones the detail panel sits below all five cards, so selecting one
+   * changed something ~200px off-screen. Bring it into view on narrow
+   * viewports; on desktop the panel is already beside the rail.
+   */
+  const pick = useCallback((i: number) => {
+    setSelected(i);
+    if (typeof window === 'undefined' || window.innerWidth >= 1000) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(() =>
+      document.getElementById('work-panel')?.scrollIntoView({
+        behavior: reduce ? 'auto' : 'smooth',
+        block: 'start',
+      }),
+    );
+  }, []);
 
   return (
     <Section id="work">
@@ -37,7 +54,7 @@ export function SelectedWork() {
                   aria-selected={active}
                   aria-controls="work-panel"
                   tabIndex={active ? 0 : -1}
-                  onClick={() => setSelected(i)}
+                  onClick={() => pick(i)}
                   className={`rounded-card border p-[18px] text-left transition duration-200 hover:-translate-y-[2px] ${
                     active
                       ? 'border-accent bg-[rgba(255,92,43,0.07)]'
@@ -75,7 +92,7 @@ export function SelectedWork() {
         {/* Detail panel */}
         <Reveal
           id="work-panel"
-          className="surface-depth min-w-0 rounded-container border border-line bg-[linear-gradient(155deg,var(--color-surface-3a),var(--color-surface-3b))] p-[clamp(20px,2.6vw,34px)] min-[1000px]:col-span-2"
+          className="surface-depth min-w-0 scroll-mt-[84px] rounded-container border border-line bg-[linear-gradient(155deg,var(--color-surface-3a),var(--color-surface-3b))] p-[clamp(20px,2.6vw,34px)] min-[1000px]:col-span-2"
           delay={120}
         >
           <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
@@ -88,13 +105,17 @@ export function SelectedWork() {
               </h3>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setCaseOpen(true)}
-              className="flex-none rounded-pill border border-line-2 px-5 py-3 font-mono text-[11.5px] tracking-[0.08em] text-text uppercase transition duration-200 hover:-translate-y-[2px] hover:border-accent hover:bg-accent hover:text-bg active:translate-y-0 active:scale-[0.985] active:duration-[180ms]"
-            >
-              Open case study <span aria-hidden="true">&#8599;</span>
-            </button>
+            {/* Only project 01 ships a diagram; the others had a button that
+                opened an empty panel. */}
+            {project.diagram ? (
+              <button
+                type="button"
+                onClick={() => setDiagramOpen(true)}
+                className="flex-none rounded-pill border border-line-2 px-5 py-3 font-mono text-[11.5px] tracking-[0.08em] text-text uppercase transition duration-200 hover:-translate-y-[2px] hover:border-accent hover:bg-accent hover:text-bg active:translate-y-0 active:scale-[0.985] active:duration-[180ms]"
+              >
+                Architecture diagram <span aria-hidden="true">&#8599;</span>
+              </button>
+            ) : null}
           </div>
 
           <div className="mb-6 grid grid-cols-1 gap-x-[32px] gap-y-5 min-[760px]:grid-cols-2">
@@ -151,11 +172,12 @@ export function SelectedWork() {
         </Reveal>
       </div>
 
-      {caseOpen ? (
-        <CaseStudyModal
-          index={pad(selected)}
-          project={project}
-          onClose={() => setCaseOpen(false)}
+      {diagramOpen && project.diagram ? (
+        <DiagramModal
+          title={project.title}
+          role={project.role}
+          src={DIAGRAM_SRC}
+          onClose={() => setDiagramOpen(false)}
         />
       ) : null}
     </Section>

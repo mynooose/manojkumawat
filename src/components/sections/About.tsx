@@ -67,7 +67,7 @@ export function About() {
                   }`}
                 >
                   <span
-                    className={`pt-1 font-mono text-[11px] tracking-[0.08em] ${
+                    className={`pr-3 pt-1 font-mono text-[11px] tracking-[0.08em] ${
                       reached ? 'text-accent' : 'text-text-4'
                     }`}
                   >

@@ -48,14 +48,16 @@ export function Engagement() {
 
       <Reveal>
         <div ref={ref} className="relative mb-8">
-          {/* Track behind the nodes, filled to the current step. */}
+          {/* Track behind the nodes, filled to the current step. Hidden below
+              1000px, where the stepper wraps onto several rows and a single
+              horizontal rule no longer connects anything. */}
           <div
             aria-hidden="true"
-            className="absolute top-[17px] right-0 left-0 h-px bg-line"
+            className="absolute top-[17px] right-0 left-0 hidden h-px bg-line min-[1000px]:block"
           />
           <div
             aria-hidden="true"
-            className="absolute top-[17px] left-0 h-px bg-accent transition-[width] duration-500"
+            className="absolute top-[17px] left-0 hidden h-px bg-accent transition-[width] duration-500 min-[1000px]:block"
             style={{ width: `${trackFill}%` }}
           />
 

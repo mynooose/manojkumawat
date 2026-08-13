@@ -139,7 +139,7 @@ export function OperatorConsole() {
 
         {isReady ? (
           <>
-            <div className="mb-5 grid grid-cols-2 gap-3 min-[1000px]:grid-cols-4">
+            <div className="mb-5 grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 min-[1000px]:grid-cols-4">
               {data.kpis.map((kpi) => (
                 <div
                   key={kpi.k}
@@ -303,7 +303,7 @@ export function OperatorConsole() {
 function ConsoleSkeleton() {
   return (
     <div aria-hidden="true">
-      <div className="mb-5 grid grid-cols-2 gap-3 min-[1000px]:grid-cols-4">
+      <div className="mb-5 grid grid-cols-1 gap-3 min-[520px]:grid-cols-2 min-[1000px]:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="shimmer h-[92px] rounded-inner border border-line" />
         ))}

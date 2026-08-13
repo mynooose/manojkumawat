@@ -3,44 +3,68 @@
 import { useState } from 'react';
 import type { SkillDomain } from '@/lib/content';
 import { useInterval } from '@/hooks/useInterval';
+import { useInView } from '@/hooks/useInView';
+import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
-const SLIDE_MS = 1800;
+/** Slide cadence: quicker on touch, where the card runs by itself. */
+const SLIDE_MS_HOVER = 1800;
+const SLIDE_MS_TOUCH = 1000;
 
 /**
- * Skill domain card. On hover (or keyboard focus) it flips to the light
- * treatment and cycles its technologies one at a time.
+ * Skill domain card.
+ *
+ * On a hover-capable device it flips to the light treatment on hover or
+ * keyboard focus and cycles its technologies.
+ *
+ * On touch there is no hover, so the card that is centred in the viewport
+ * activates itself and cycles faster; tapping any card activates it
+ * immediately and pins it. Without this the whole interaction was invisible
+ * on a phone.
  *
  * The card holds a fixed min-height so flipping never resizes it and shifts
- * the grid. Focus is handled alongside hover so the behaviour is reachable
- * without a pointer.
+ * the grid.
  */
 export function SkillCard({ domain, index }: { domain: SkillDomain; index: number }) {
   const reducedMotion = usePrefersReducedMotion();
-  const [active, setActive] = useState(false);
+  const coarse = useCoarsePointer();
+  const { ref, inView } = useInView<HTMLDivElement>('-35% 0px -35% 0px');
+
+  const [pointerActive, setPointerActive] = useState(false);
+  const [tapped, setTapped] = useState(false);
   const [slide, setSlide] = useState(0);
 
   const count = domain.technologies.length;
+  // On touch: whichever card is centred, or one the reader has tapped.
+  const active = coarse ? tapped || inView : pointerActive;
 
   useInterval(
     () => setSlide((s) => (s + 1) % count),
-    active && !reducedMotion ? SLIDE_MS : null,
+    active && !reducedMotion ? (coarse ? SLIDE_MS_TOUCH : SLIDE_MS_HOVER) : null,
   );
 
   const open = () => {
     setSlide(0);
-    setActive(true);
+    setPointerActive(true);
   };
-  const close = () => setActive(false);
+  const close = () => setPointerActive(false);
+
+  const onTap = () => {
+    if (!coarse) return;
+    setSlide(0);
+    setTapped(true);
+  };
 
   const tech = domain.technologies[slide] ?? domain.technologies[0]!;
 
   return (
     <div
-      onMouseEnter={open}
-      onMouseLeave={close}
-      onFocus={open}
-      onBlur={close}
+      ref={ref}
+      onMouseEnter={coarse ? undefined : open}
+      onMouseLeave={coarse ? undefined : close}
+      onFocus={coarse ? undefined : open}
+      onBlur={coarse ? undefined : close}
+      onPointerDown={onTap}
       tabIndex={0}
       role="group"
       aria-label={domain.title}
