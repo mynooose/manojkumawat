@@ -9,7 +9,12 @@ import { useInView } from '@/hooks/useInView';
 import { useInterval } from '@/hooks/useInterval';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
-const AUTO_MS = 3200;
+/**
+ * Auto-advance cadence. The design spec said 3.2s; 1s was asked for after
+ * seeing it running.
+ */
+const AUTO_MS = 1000;
+/** How long a click holds the stepper before auto-advance resumes. */
 const PAUSE_MS = 1500;
 const COUNT = PROCESS_STAGES.length;
 

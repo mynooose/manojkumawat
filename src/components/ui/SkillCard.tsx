@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import type { SkillDomain } from '@/lib/content';
 import { useInterval } from '@/hooks/useInterval';
-import { useInView } from '@/hooks/useInView';
-import { useCoarsePointer } from '@/hooks/useCoarsePointer';
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion';
 
 /** Slide cadence: quicker on touch, where the card runs by itself. */
@@ -17,26 +15,38 @@ const SLIDE_MS_TOUCH = 1000;
  * On a hover-capable device it flips to the light treatment on hover or
  * keyboard focus and cycles its technologies.
  *
- * On touch there is no hover, so the card that is centred in the viewport
- * activates itself and cycles faster; tapping any card activates it
- * immediately and pins it. Without this the whole interaction was invisible
- * on a phone.
+ * On touch there is no hover, so the parent decides which single card is
+ * active — the one nearest the centre of the viewport, or one the reader has
+ * tapped — and passes it down. That decision has to be centralised: when each
+ * card judged for itself, two neighbours could qualify at once.
  *
  * The card holds a fixed min-height so flipping never resizes it and shifts
  * the grid.
  */
-export function SkillCard({ domain, index }: { domain: SkillDomain; index: number }) {
-  const reducedMotion = usePrefersReducedMotion();
-  const coarse = useCoarsePointer();
-  const { ref, inView } = useInView<HTMLDivElement>('-35% 0px -35% 0px');
+interface SkillCardProps {
+  domain: SkillDomain;
+  index: number;
+  /** True on touch devices when the parent has chosen this card. */
+  autoActive: boolean;
+  /** Touch only: hover decides on pointer devices. */
+  coarse: boolean;
+  onActivate: (index: number) => void;
+}
 
+export function SkillCard({ domain, index, autoActive, coarse, onActivate }: SkillCardProps) {
+  const reducedMotion = usePrefersReducedMotion();
   const [pointerActive, setPointerActive] = useState(false);
-  const [tapped, setTapped] = useState(false);
   const [slide, setSlide] = useState(0);
 
   const count = domain.technologies.length;
-  // On touch: whichever card is centred, or one the reader has tapped.
-  const active = coarse ? tapped || inView : pointerActive;
+  const active = coarse ? autoActive : pointerActive;
+
+  // Restart the sequence whenever a card becomes the active one.
+  const [wasActive, setWasActive] = useState(false);
+  if (active !== wasActive) {
+    setWasActive(active);
+    if (active && slide !== 0) setSlide(0);
+  }
 
   useInterval(
     () => setSlide((s) => (s + 1) % count),
@@ -51,15 +61,13 @@ export function SkillCard({ domain, index }: { domain: SkillDomain; index: numbe
 
   const onTap = () => {
     if (!coarse) return;
-    setSlide(0);
-    setTapped(true);
+    onActivate(index);
   };
 
   const tech = domain.technologies[slide] ?? domain.technologies[0]!;
 
   return (
     <div
-      ref={ref}
       onMouseEnter={coarse ? undefined : open}
       onMouseLeave={coarse ? undefined : close}
       onFocus={coarse ? undefined : open}
