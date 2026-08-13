@@ -1,10 +1,24 @@
-Thumbs.db
-.DS_Store
+# dependencies
 node_modules/
 
-# never commit credentials
+# next.js
+.next/
+out/
+next-env.d.ts
+
+# production
+build/
+
+# misc
+.DS_Store
+Thumbs.db
+*.tsbuildinfo
+
+# credentials — never commit
 *token*.txt
 *.env
-.vercel/
+.env*
+!.env.example
 
-.vercel
+# deployment
+.vercel/
