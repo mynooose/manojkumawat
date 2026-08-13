@@ -22,3 +22,7 @@ Thumbs.db
 
 # deployment
 .vercel/
+
+# design reference kept locally for visual diffing, not committed
+reference/Portfolio.dc.html
+reference/support.js

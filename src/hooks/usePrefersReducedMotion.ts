@@ -10,29 +10,16 @@ function subscribe(onChange: () => void): () => void {
   return () => mq.removeEventListener('change', onChange);
 }
 
-function getSnapshot(): boolean {
-  return window.matchMedia(QUERY).matches;
-}
+const getSnapshot = () => window.matchMedia(QUERY).matches;
 
 /**
- * Server snapshot: assume reduced motion.
- *
- * The preference cannot be known during server rendering, so the markup is
- * produced in its non-animating form and animation is enabled on hydration.
- * Erring this way means a user who wants less motion never sees a frame of it.
+ * Server snapshot assumes reduced motion, so the markup is produced in its
+ * non-animating form and animation is enabled on hydration. A user who asked
+ * for less motion never sees a frame of it.
  */
-function getServerSnapshot(): boolean {
-  return true;
-}
+const getServerSnapshot = () => true;
 
-/**
- * Tracks the user's reduced-motion preference, staying current if they change
- * it mid-session.
- *
- * Implemented with useSyncExternalStore rather than useState + useEffect: a
- * media query is an external store, and subscribing to it this way avoids the
- * cascading render that setState-inside-an-effect causes.
- */
+/** Tracks the reduced-motion preference, staying current if it changes. */
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

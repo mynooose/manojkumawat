@@ -1,32 +1,25 @@
-import { SiteHeader } from '@/components/layout/SiteHeader';
-import { SiteFooter } from '@/components/layout/SiteFooter';
+import { ScrollProgress } from '@/components/layout/ScrollProgress';
+import { PillNav } from '@/components/layout/PillNav';
 import { Hero } from '@/components/sections/Hero';
-import { StatsBand } from '@/components/sections/StatsBand';
 import { SelectedWork } from '@/components/sections/SelectedWork';
-import { PlatformInOperation } from '@/components/sections/PlatformInOperation';
-import { Approach } from '@/components/sections/Approach';
+import { ArchitectureExplorer } from '@/components/sections/ArchitectureExplorer';
+import { OperatorConsole } from '@/components/sections/OperatorConsole';
+import { Engagement } from '@/components/sections/Engagement';
 import { About } from '@/components/sections/About';
-import { Capabilities } from '@/components/sections/Capabilities';
-import { Contact } from '@/components/sections/Contact';
+import { Contact, SiteFooter } from '@/components/sections/Contact';
 
-/**
- * The page is a server component. Only the four sections that need browser
- * state — the schematic, the work switcher, the operations panel and the two
- * scroll spines — opt into the client, so the served HTML already contains all
- * of the content.
- */
 export default function HomePage() {
   return (
     <>
-      <SiteHeader />
+      <ScrollProgress />
+      <PillNav />
       <main id="top">
         <Hero />
-        <StatsBand />
         <SelectedWork />
-        <PlatformInOperation />
-        <Approach />
+        <ArchitectureExplorer />
+        <OperatorConsole />
+        <Engagement />
         <About />
-        <Capabilities />
         <Contact />
       </main>
       <SiteFooter />

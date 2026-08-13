@@ -1,7 +1,7 @@
 # manojkumawat.com
 
-Solution-architect portfolio for Manoj Kumawat. Next.js App Router, TypeScript,
-CSS Modules. Deployed on Vercel; DNS at GoDaddy.
+Solution-architect portfolio. Next.js App Router, TypeScript, Tailwind CSS v4.
+Deployed on Vercel; DNS at GoDaddy.
 
 ## Running it
 
@@ -17,84 +17,68 @@ npm run dev          # http://localhost:3000
 | `npm start` | Serve the production build |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint |
-| `npm run format` | Prettier over `src/` |
-| `npm run verify` | typecheck → lint → build. Run this before pushing |
+| `npm run verify` | typecheck → lint → build. Run before pushing |
 
 Node 20.9 or newer.
 
-## Layout
+## Where to edit content
+
+**All copy and figures live in `src/lib/content.json`.** Nothing user-facing is
+hardcoded in a component. `src/lib/content.ts` types that file — change the
+shape there and a mismatch becomes a build error rather than `undefined` on the
+page.
 
 ```
 src/
-  app/            routes, layout, global CSS
+  app/            routes, root layout, global CSS + design tokens
     api/health/   worked example of a route handler
   components/
-    layout/       header, footer
-    sections/     one component per page section
-    ui/           Reveal, DiagramViewer
-  content/        all copy and figures, typed, no JSX
-  hooks/          useInterval, usePrefersReducedMotion, useScrollSpine
-  styles/         tokens.css — the design system
+    layout/       pill nav, scroll-progress bar
+    sections/     one component per numbered section
+    ui/           Reveal, SkillCard, CaseStudyModal, Section, SectionHeading
+  hooks/          useInterval, useInView, useScrollFill, usePrefersReducedMotion
+  lib/            content.json + its types, and the console's metric maths
 public/           portrait, architecture diagram, icons
+reference/        DESIGN-SPEC.md — the design contract
 ```
 
-Two rules keep this tidy:
+## Design tokens
 
-1. **Copy lives in `src/content`**, never inside a component. Changing a
-   project write-up or a job title means editing one typed object.
-2. **Colours, type steps and spacing live in `src/styles/tokens.css`.** A
-   component stylesheet should reference `var(--c-accent)`, never `#9C4A1E`.
+Tailwind v4 is CSS-first, so the tokens from `reference/DESIGN-SPEC.md` are
+mapped in the `@theme` block at the top of `src/app/globals.css` rather than a
+`tailwind.config.ts`. That block generates the utilities used throughout
+(`bg-surface`, `text-text-2`, `border-line`, `rounded-pill`, …).
 
-## Adding backend functionality
+Use a token. A raw hex in a component is a bug.
 
-Route handlers run on Node at request time. `src/app/api/health/route.ts` is the
-reference. A contact form would be `src/app/api/contact/route.ts` exporting
-`POST`; read secrets from `process.env` and add them in the Vercel dashboard
-under the project's environment variables.
+## Things that are easy to break
 
-Most sections are server components. Only `TenantSchematic`, `SelectedWork`,
-`PlatformInOperation`, `Approach` and `About` are `'use client'`, because they
-need timers or scroll position. Keep new work on the server unless it needs
-browser state — that is what keeps the content in the served HTML.
+- **Console data must stay deterministic.** `src/lib/metrics.ts` seeds a small
+  LCG per (tenant, range), copied verbatim from the approved reference. Anything
+  random would make the chart flicker on every re-render.
+- **Optical sizing.** Bricolage Grotesque is loaded as a variable font with the
+  `opsz` axis. Drop that axis and every display heading renders noticeably
+  wider than the design.
+- **Reduced motion.** Every timer takes `null` as its delay under
+  `prefers-reduced-motion`, and the CSS kills animation and transition
+  outright. Adding a new animation means handling both.
+- **No horizontal overflow at any width.** `html, body` set `overflow-x: hidden`,
+  but that hides the symptom — grid tracks still need `minmax(min(Npx,100%),1fr)`
+  so they collapse rather than overflow.
 
-## Design
+## Backend
 
-High fidelity: colours, typography, spacing, animation and copy are final.
-Reproduce exactly; do not "improve" the design when changing code.
-
-**Colour** — ground `#FBF8F4`, band `#EFE9E3`, ink `#1A1614`, body `#544C46`,
-muted `#635A52`, faint `#A2968C`, accent `#9C4A1E`, accent-deep `#7A360F`,
-hairline `#E2D8CE`, rail `#DCD0C5`. On dark: `#FBF8F4`, `#C8BCB0`, `#E0A97E`.
-No pure black anywhere.
-
-**Type** — Instrument Serif for headings, Inter Tight for body, JetBrains Mono
-for labels and eyebrows (9.5–11px, uppercase, wide tracking). Self-hosted by
-`next/font`; there is no font CDN request at runtime.
-
-**Motion** — reveal on scroll, two scroll-filled spines, and five timers (trace
-1.9s, tenant cycle 1.15s, RAG 0.82s, checklist 1.5s, bar pulse 2.2s). All of it
-stops under `prefers-reduced-motion`.
-
-## Responsive
-
-Breakpoints at 1080 / 900 / 700 / 560 / 380px. Two rules that are easy to
-regress:
-
-- Grid tracks use `minmax(min(Npx, 100%), 1fr)`. Plain `minmax(Npx, 1fr)` does
-  not collapse below `N` — it overflows the viewport.
-- A child with `grid-column: span 2` must be reset to `auto` at the breakpoint
-  where its grid collapses to one track, or it forces an implicit column.
-
-Verified with Playwright from 320px to 1440px.
+Route handlers run on Node at request time; `src/app/api/health/route.ts` is
+the reference. A contact form would be `src/app/api/contact/route.ts` exporting
+`POST`, reading secrets from `process.env` (set them in the Vercel dashboard).
 
 ## Deployment
 
-Pushes to `main` deploy to production automatically; branches get preview URLs.
-Domain is at GoDaddy with an apex `A` record and a project-specific `www`
-CNAME; `www` 301s to the apex. See the deployment runbook for the exact values.
+Pushes to `main` deploy to production; branches get preview URLs. The Vercel
+project's framework preset must stay **Next.js** — if it is set to "Other" the
+build is skipped and the site 404s.
 
 ## Before wider circulation
 
-- Projects 02, 03 and 05 carry **estimated** figures. 01 and 04 are real.
-  Confirm or replace them.
-- `hello@manojkumawat.com` needs a mail forwarder to exist.
+- The operator console is labelled representative data. Keep that label.
+- Client names are withheld throughout. Keep that too.

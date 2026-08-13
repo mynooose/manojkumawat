@@ -1,31 +1,27 @@
 'use client';
 
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react';
-import styles from './Reveal.module.css';
 
 interface RevealProps {
   children: ReactNode;
-  /** Element to render. Defaults to a div. */
   as?: ElementType;
   className?: string;
+  /** Stagger in ms, per the 60-80ms cadence in the spec. */
+  delay?: number;
   id?: string;
 }
 
 /**
- * Fades and lifts its children into place once, the first time they come near
- * the viewport.
+ * Fades and lifts content in once, on first entry.
  *
- * The original polled every element on a 600ms interval plus every scroll
+ * The reference polled every element on a 700ms interval plus every scroll
  * event; an IntersectionObserver does the same job without touching layout on
- * the scroll thread, and stops observing each element once it has fired.
+ * the scroll thread and stops observing once fired.
  *
- * Reduced motion is handled entirely in CSS, so there is no JS branch for it
- * and no risk of the server and client disagreeing on the initial markup.
- *
- * Content is always present in the DOM — only opacity and transform change — so
- * this costs nothing for crawlers or for users without JavaScript.
+ * Content is always in the DOM — only opacity and transform change — so this
+ * costs nothing for crawlers. Reduced motion is handled in CSS.
  */
-export function Reveal({ children, as: Tag = 'div', className, id }: RevealProps) {
+export function Reveal({ children, as: Tag = 'div', className = '', delay = 0, id }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
   const [shown, setShown] = useState(false);
 
@@ -33,7 +29,6 @@ export function Reveal({ children, as: Tag = 'div', className, id }: RevealProps
     const el = ref.current;
     if (!el) return;
 
-    // Very old browsers: reveal on the next frame rather than never.
     if (typeof IntersectionObserver === 'undefined') {
       const frame = requestAnimationFrame(() => setShown(true));
       return () => cancelAnimationFrame(frame);
@@ -47,17 +42,20 @@ export function Reveal({ children, as: Tag = 'div', className, id }: RevealProps
           observer.unobserve(entry.target);
         }
       },
-      { rootMargin: '0px 0px -6% 0px' },
+      { rootMargin: '0px 0px -8% 0px' },
     );
 
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
 
-  const classes = [styles.reveal, shown ? styles.shown : '', className].filter(Boolean).join(' ');
-
   return (
-    <Tag ref={ref} id={id} className={classes}>
+    <Tag
+      ref={ref}
+      id={id}
+      className={`${shown ? 'rise' : 'opacity-0'} ${className}`}
+      style={shown && delay ? { animationDelay: `${delay}ms` } : undefined}
+    >
       {children}
     </Tag>
   );
