@@ -171,6 +171,26 @@
   }
 }
 
+/* A pulse travelling along a connector, so the diagram reads as a flow
+   rather than a stack of cards. */
+@keyframes flowDown {
+  from {
+    transform: translateY(-140%);
+  }
+  to {
+    transform: translateY(340%);
+  }
+}
+
+@keyframes flowRight {
+  from {
+    transform: translateX(-140%);
+  }
+  to {
+    transform: translateX(340%);
+  }
+}
+
 @keyframes modalIn {
   from {
     opacity: 0;
@@ -228,6 +248,40 @@
 
   .modal-in {
     animation: modalIn 0.4s var(--ease-out-expo) backwards;
+  }
+
+  /* Connector rails. The pulse is a child element so the rail itself keeps a
+     constant colour and only the highlight moves. */
+  .flow-v,
+  .flow-h {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-line-2);
+  }
+
+  .flow-v::after,
+  .flow-h::after {
+    content: '';
+    position: absolute;
+    background: linear-gradient(var(--flow-dir, 180deg), transparent, var(--color-accent), transparent);
+  }
+
+  .flow-v::after {
+    inset-inline: 0;
+    height: 60%;
+    animation: flowDown 1.9s linear infinite;
+  }
+
+  .flow-h::after {
+    inset-block: 0;
+    width: 60%;
+    --flow-dir: 90deg;
+    animation: flowRight 1.9s linear infinite;
+  }
+
+  /* Paused rails keep the rail, drop the pulse. */
+  .flow-off::after {
+    display: none;
   }
 }
 

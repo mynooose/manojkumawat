@@ -88,30 +88,40 @@ export function ArchitectureExplorer() {
 
       <div className="grid grid-cols-1 gap-[clamp(18px,2.2vw,32px)] min-[1000px]:grid-cols-[1.6fr_1fr]">
         <Reveal className="min-w-0" delay={60}>
-          <div ref={ref} className="flex flex-col gap-3">
-            <Zone label="Client and infrastructure">
+          <div ref={ref} className="flex flex-col">
+            <Region label="Client and infrastructure">
               <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
                 {byZone.client.map(node)}
               </div>
-            </Zone>
+            </Region>
 
-            <Zone label="Edge and network">
+            <FlowV active={touring} />
+
+            <Region label="Edge and network">
               <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-2">
                 {byZone.edge.map(node)}
               </div>
-            </Zone>
+            </Region>
 
-            <div className="grid grid-cols-1 gap-3 min-[1000px]:grid-cols-[0.72fr_1.9fr]">
-              <Zone label="Build and release">
+            <FlowV active={touring} />
+
+            <div className="grid grid-cols-1 items-start gap-3 min-[1000px]:grid-cols-[0.68fr_auto_1.9fr] min-[1000px]:gap-0">
+              <Region label="Build and release">
                 <div className="flex flex-col gap-2">{byZone.build.map(node)}</div>
-              </Zone>
+              </Region>
 
-              <div className="min-w-0 rounded-panel border border-line bg-surface-3b p-3">
+              {/* Releases flow sideways into the cluster; only meaningful once
+                  the two sit side by side. */}
+              <div className="hidden self-center px-2 min-[1000px]:block">
+                <FlowH active={touring} />
+              </div>
+
+              <div className="min-w-0 rounded-panel border border-line bg-surface-3b p-3 min-[1000px]:ml-0">
                 <p className="m-0 mb-3 font-mono text-[9.5px] tracking-[0.16em] text-text-4 uppercase">
                   Production GKE cluster · one namespace per tenant
                 </p>
 
-                <div className="mb-3 rounded-inner border border-line-2 p-[10px]">
+                <div className="rounded-inner border border-line-2 bg-surface-2 p-[10px]">
                   <p className="m-0 mb-2 font-mono text-[9px] tracking-[0.16em] text-text-4 uppercase">
                     Master namespace · shared control plane
                   </p>
@@ -120,30 +130,36 @@ export function ArchitectureExplorer() {
                   </div>
                 </div>
 
+                <FlowV active={touring} short />
+
                 {/* Dashed boundary: the isolation line the whole design turns on. */}
-                <div className="rounded-inner border border-dashed border-line-hover p-[10px]">
+                <div className="rounded-inner border border-dashed border-line-hover bg-surface-2 p-[10px]">
                   <p className="m-0 mb-2 font-mono text-[9px] tracking-[0.16em] text-text-4 uppercase">
                     Tenant boundary · fully isolated stack per client
                   </p>
 
-                  <div className="mb-2 grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
                     {byZone.app.map(node)}
                   </div>
 
+                  <FlowV active={touring} short />
                   <QueryPath lit={selected === 'rag'} />
+                  <FlowV active={touring} short />
 
-                  <div className="mt-2 grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-2 min-[560px]:grid-cols-3">
                     {byZone.data.map(node)}
                   </div>
                 </div>
               </div>
             </div>
 
-            <Zone label="Shared platform · managed and third party">
+            <FlowV active={touring} />
+
+            <Region label="Shared platform · managed and third party">
               <div className="grid grid-cols-2 gap-2 min-[760px]:grid-cols-4">
                 {byZone.plat.map(node)}
               </div>
-            </Zone>
+            </Region>
           </div>
         </Reveal>
 
@@ -184,14 +200,36 @@ export function ArchitectureExplorer() {
   );
 }
 
-function Zone({ label, children }: { label: string; children: React.ReactNode }) {
+/** A bordered region, so each stage reads as one thing rather than loose cards. */
+function Region({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 rounded-panel border border-line bg-surface-3b p-3">
       <p className="m-0 mb-2 font-mono text-[9.5px] tracking-[0.16em] text-text-4 uppercase">
         {label}
       </p>
       {children}
     </div>
+  );
+}
+
+/**
+ * Vertical connector between two regions, with a pulse travelling down it
+ * while the tour is running. The rail stays put; only the highlight moves.
+ */
+function FlowV({ active, short = false }: { active: boolean; short?: boolean }) {
+  return (
+    <div aria-hidden="true" className={`flex justify-center ${short ? 'py-[6px]' : 'py-[10px]'}`}>
+      <span
+        className={`flow-v w-px ${short ? 'h-4' : 'h-6'} ${active ? '' : 'flow-off'}`}
+      />
+    </div>
+  );
+}
+
+/** Horizontal connector, used where the build column feeds the cluster. */
+function FlowH({ active }: { active: boolean }) {
+  return (
+    <span aria-hidden="true" className={`flow-h block h-px w-8 ${active ? '' : 'flow-off'}`} />
   );
 }
 
