@@ -18,8 +18,11 @@ const clampScale = (s: number) => Math.min(MAX_SCALE, Math.max(MIN_SCALE, s));
 interface ArchitectureViewerProps {
   src: string;
   alt: string;
-  /** Caption in the control bar. Defaults to the SaaS platform label. */
-  heading?: string;
+  /**
+   * Caption in the control bar. Pass null to omit it, e.g. inside a dialog
+   * whose own header already names the diagram.
+   */
+  heading?: string | null;
 }
 
 /**
@@ -204,9 +207,13 @@ export function ArchitectureViewer({
     <div className="flex h-full flex-col">
       {/* Controls */}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 border-b border-line px-[clamp(16px,3vw,28px)] py-3">
-        <p className="m-0 hidden font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase min-[560px]:block">
-          {heading}
-        </p>
+        {heading ? (
+          <p className="m-0 hidden font-mono text-[10.5px] tracking-[0.14em] text-text-4 uppercase min-[560px]:block">
+            {heading}
+          </p>
+        ) : (
+          <span aria-hidden="true" />
+        )}
 
         <div className="flex flex-wrap items-center gap-2">
           <button

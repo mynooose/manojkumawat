@@ -11,14 +11,14 @@ interface DiagramModalProps {
 }
 
 /**
- * Full-screen architecture diagram.
+ * Architecture diagram in a centred panel.
  *
- * Only shown for projects that actually ship a diagram. The viewer inside
- * carries its own zoom, fit and pan controls, so the diagram is usable on a
- * phone rather than being a 1800px image in a 390px scroll frame.
+ * Deliberately not full-bleed: the page stays visible around the edges, so
+ * the way back is obvious and clicking anywhere outside dismisses it. The
+ * panel still takes nearly the whole viewport, since the diagram needs room.
  *
  * A real dialog: focus moves in, Tab is trapped, background scroll is locked,
- * and focus returns to the trigger on close.
+ * Esc closes, and focus returns to the trigger afterwards.
  */
 export function DiagramModal({ title, role, src, onClose }: DiagramModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
@@ -64,40 +64,52 @@ export function DiagramModal({ title, role, src, onClose }: DiagramModalProps) {
   }, [onClose]);
 
   return (
-    <div
-      ref={panelRef}
-      role="dialog"
-      aria-modal="true"
-      aria-label={`Architecture diagram: ${title}`}
-      tabIndex={-1}
-      className="modal-in fixed inset-0 z-[200] flex flex-col bg-bg"
-    >
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line px-[clamp(16px,3vw,28px)] py-3">
-        <div className="min-w-0">
-          <p className="m-0 font-mono text-[10px] tracking-[0.14em] text-accent uppercase">
-            Architecture diagram
-          </p>
-          <p className="m-0 truncate text-[15px] font-medium text-text">{title}</p>
-          <p className="m-0 font-mono text-[10px] tracking-[0.12em] text-text-4 uppercase">
-            {role}
-          </p>
+    <div className="fixed inset-0 z-[200]">
+      {/* Click anywhere outside the panel to go back to the page. */}
+      <button
+        type="button"
+        aria-label="Close diagram"
+        onClick={onClose}
+        className="absolute inset-0 h-full w-full cursor-default bg-[rgba(6,6,7,0.78)] backdrop-blur-[6px]"
+      />
+
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Architecture diagram: ${title}`}
+        tabIndex={-1}
+        className="modal-in absolute top-1/2 left-1/2 flex focus:outline-none focus-visible:outline-none h-[min(880px,calc(100dvh-28px))] w-[calc(100vw-16px)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-panel border border-line bg-bg shadow-[0_30px_90px_rgba(0,0,0,0.55)] min-[760px]:h-[min(880px,calc(100dvh-72px))] min-[760px]:w-[min(1280px,calc(100vw-72px))] min-[760px]:rounded-container"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-line px-[clamp(14px,2.4vw,24px)] py-3">
+          <div className="min-w-0">
+            <p className="m-0 font-mono text-[10px] tracking-[0.14em] text-accent uppercase">
+              Architecture diagram
+            </p>
+            <p className="m-0 truncate text-[15px] font-medium text-text">{title}</p>
+            <p className="m-0 hidden font-mono text-[10px] tracking-[0.12em] text-text-4 uppercase min-[560px]:block">
+              {role}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-none rounded-pill border border-line-2 px-4 py-[10px] font-mono text-[11px] tracking-[0.1em] text-text uppercase transition hover:border-accent hover:bg-accent hover:text-bg active:scale-[0.98]"
+          >
+            Close ✕
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex-none rounded-pill border border-line-2 px-4 py-[10px] font-mono text-[11px] tracking-[0.1em] text-text uppercase transition hover:border-accent hover:bg-accent hover:text-bg active:scale-[0.98]"
-        >
-          Close ✕
-        </button>
-      </div>
-
-      <div className="min-h-0 flex-1">
-        <ArchitectureViewer
-          src={src}
-          alt={`Production architecture of the ${title}`}
-          heading={title}
-        />
+        <div className="min-h-0 flex-1">
+          {/* The panel header already names the project, so the viewer's own
+              caption would just repeat it. */}
+          <ArchitectureViewer
+            src={src}
+            alt={`Production architecture of the ${title}`}
+            heading={null}
+          />
+        </div>
       </div>
     </div>
   );
