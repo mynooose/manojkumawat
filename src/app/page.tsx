@@ -1,5 +1,6 @@
 import { ScrollProgress } from '@/components/layout/ScrollProgress';
 import { PillNav } from '@/components/layout/PillNav';
+import { ScrollRail } from '@/components/layout/ScrollRail';
 import { Hero } from '@/components/sections/Hero';
 import { SelectedWork } from '@/components/sections/SelectedWork';
 import { ArchitectureExplorer } from '@/components/sections/ArchitectureExplorer';
@@ -13,6 +14,7 @@ export default function HomePage() {
     <>
       <ScrollProgress />
       <PillNav />
+      <ScrollRail />
       <main id="top">
         <Hero />
         <SelectedWork />

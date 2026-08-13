@@ -21,9 +21,8 @@ export function PillNav() {
     <header className="pointer-events-none fixed inset-x-0 top-0 z-[110] flex justify-center px-[clamp(14px,3vw,28px)] py-[14px]">
       <nav
         aria-label="Primary"
-        className="pointer-events-auto w-full max-w-[1180px] rounded-[26px] border border-line bg-[rgba(12,12,13,0.72)] px-[10px] py-2 backdrop-blur-[16px] min-[760px]:flex min-[760px]:flex-wrap min-[760px]:items-center min-[760px]:justify-between min-[760px]:gap-x-[18px] min-[760px]:gap-y-[10px] min-[760px]:rounded-pill min-[760px]:py-2 min-[760px]:pr-2 min-[760px]:pl-[18px]"
+        className="pointer-events-auto flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-x-[18px] gap-y-[10px] rounded-pill border border-line bg-[rgba(12,12,13,0.72)] py-2 pr-2 pl-[14px] backdrop-blur-[16px] min-[760px]:pl-[18px]"
       >
-        <div className="flex items-center justify-between gap-3 px-2 min-[760px]:contents">
           <a
             href="#top"
             className="flex flex-none items-center gap-[10px] text-[14px] font-bold tracking-[-0.02em] text-text min-[400px]:text-[15px]"
@@ -45,38 +44,19 @@ export function PillNav() {
           >
             Let&apos;s talk
           </a>
-        </div>
-
-        {/* Mobile: scrollable anchor row that also marks the current section. */}
-        <div
-          className="mt-2 flex items-center gap-[2px] overflow-x-auto font-mono text-[11px] [-ms-overflow-style:none] [scrollbar-width:none] min-[760px]:hidden [&::-webkit-scrollbar]:hidden"
-          aria-label="Sections"
-        >
-          {NAV_LINKS.map((link) => (
-            <NavLink key={link.href} link={link} on={active === link.id} compact />
-          ))}
-        </div>
       </nav>
     </header>
   );
 }
 
-function NavLink({
-  link,
-  on,
-  compact = false,
-}: {
-  link: (typeof NAV_LINKS)[number];
-  on: boolean;
-  compact?: boolean;
-}) {
+function NavLink({ link, on }: { link: (typeof NAV_LINKS)[number]; on: boolean }) {
   return (
     <a
       href={link.href}
       aria-current={on ? 'true' : undefined}
-      className={`flex flex-none items-center gap-[6px] rounded-pill transition-colors duration-[180ms] ${
-        compact ? 'px-[11px] py-[7px]' : 'px-[13px] py-2'
-      } ${on ? 'bg-line-3 text-text' : 'text-text-2 hover:bg-line-3 hover:text-text'}`}
+      className={`flex flex-none items-center gap-[6px] rounded-pill px-[13px] py-2 transition-colors duration-[180ms] ${
+        on ? 'bg-line-3 text-text' : 'text-text-2 hover:bg-line-3 hover:text-text'
+      }`}
     >
       <span
         aria-hidden="true"

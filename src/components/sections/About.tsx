@@ -43,7 +43,10 @@ export function About() {
 
         {/* Career spine */}
         <Reveal delay={120}>
-          <div ref={containerRef} className="relative">
+          <div
+            ref={containerRef}
+            className="relative [--rail:84px] min-[760px]:[--rail:126px]"
+          >
             <div
               aria-hidden="true"
               className="absolute top-0 left-[var(--rail)] w-px bg-line"
@@ -67,7 +70,7 @@ export function About() {
                   }`}
                 >
                   <span
-                    className={`pr-3 pt-1 font-mono text-[11px] tracking-[0.08em] ${
+                    className={`pt-1 pr-4 font-mono text-[11px] tracking-[0.08em] ${
                       reached ? 'text-accent' : 'text-text-4'
                     }`}
                   >

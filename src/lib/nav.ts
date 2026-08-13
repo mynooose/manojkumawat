@@ -17,3 +17,13 @@ export const NAV_IDS = [
   'about',
   'contact',
 ] as const;
+
+/** Markers on the mobile scroll rail, in page order. */
+export const RAIL_SECTIONS = [
+  { id: 'work', label: 'work' },
+  { id: 'architecture', label: 'architecture' },
+  { id: 'console', label: 'live console' },
+  { id: 'process', label: 'method' },
+  { id: 'about', label: 'about' },
+  { id: 'contact', label: 'contact' },
+] as const;

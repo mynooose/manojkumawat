@@ -48,33 +48,45 @@ export function Engagement() {
 
       <Reveal>
         <div ref={ref} className="relative mb-8">
-          {/* Track behind the nodes, filled to the current step. Hidden below
-              1000px, where the stepper wraps onto several rows and a single
-              horizontal rule no longer connects anything. */}
+          {/*
+            The connector runs along the axis the stages are laid out on:
+            horizontal across one row on desktop, vertical down a single
+            column below 1000px. Both fill to the current step, so the
+            progress reading is the same either way. The earlier version drew
+            only the horizontal rule, which floated across a wrapped grid and
+            connected nothing.
+          */}
           <div
             aria-hidden="true"
-            className="absolute top-[17px] right-0 left-0 hidden h-px bg-line min-[1000px]:block"
+            className="absolute top-[17px] bottom-[17px] left-[17px] w-px bg-line min-[1000px]:top-[17px] min-[1000px]:right-0 min-[1000px]:bottom-auto min-[1000px]:left-0 min-[1000px]:h-px min-[1000px]:w-auto"
           />
+          <div
+            aria-hidden="true"
+            className="absolute top-[17px] left-[17px] w-px bg-accent transition-[height,width] duration-500 min-[1000px]:left-0 min-[1000px]:h-px min-[1000px]:w-auto"
+            style={{ height: `calc((100% - 34px) * ${trackFill} / 100)` }}
+          />
+          {/* Desktop fill is a width; kept separate so one element does not
+              have to animate both axes. */}
           <div
             aria-hidden="true"
             className="absolute top-[17px] left-0 hidden h-px bg-accent transition-[width] duration-500 min-[1000px]:block"
             style={{ width: `${trackFill}%` }}
           />
 
-          <ol className="relative m-0 grid list-none grid-cols-2 gap-y-6 p-0 min-[760px]:grid-cols-3 min-[1000px]:grid-cols-6">
+          <ol className="relative m-0 grid list-none grid-cols-1 gap-y-4 p-0 min-[1000px]:grid-cols-6 min-[1000px]:gap-y-6">
             {PROCESS_STAGES.map((stage, i) => {
               const current = i === step;
               const reached = i < step;
               return (
-                <li key={stage.t} className="flex flex-col items-start gap-3">
+                <li key={stage.t} className="flex">
                   <button
                     type="button"
                     aria-current={current ? 'step' : undefined}
                     onClick={() => pick(i)}
-                    className="group flex flex-col items-start gap-3 text-left"
+                    className="group flex w-full items-center gap-4 text-left min-[1000px]:w-auto min-[1000px]:flex-col min-[1000px]:items-start min-[1000px]:gap-3"
                   >
                     <span
-                      className={`flex h-[34px] w-[34px] items-center justify-center rounded-full border font-mono text-[11.5px] transition duration-300 ${
+                      className={`z-10 flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full border font-mono text-[11.5px] transition duration-300 ${
                         current
                           ? 'border-accent bg-accent text-bg shadow-[0_0_0_5px_rgba(255,92,43,0.14)]'
                           : reached
@@ -85,7 +97,7 @@ export function Engagement() {
                       0{i + 1}
                     </span>
                     <span
-                      className={`max-w-[140px] text-[13.5px] leading-[1.35] transition-colors ${
+                      className={`text-[15px] leading-[1.35] transition-colors min-[1000px]:max-w-[140px] min-[1000px]:text-[13.5px] ${
                         current ? 'text-text' : 'text-text-4 group-hover:text-text-2'
                       }`}
                     >
